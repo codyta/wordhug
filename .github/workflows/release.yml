@@ -38,10 +38,19 @@ jobs:
     if: needs.select-mode.outputs.mode == 'version'
     needs: select-mode
     runs-on: ubuntu-latest
+    # The Version Packages PR is pushed with the release GitHub App's token, not
+    # GITHUB_TOKEN: GitHub doesn't run workflows for GITHUB_TOKEN pushes, so CI
+    # would never report on the PR. GITHUB_TOKEN only needs to read the repo.
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
+      - id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -51,6 +60,8 @@ jobs:
           package-manager-cache: false
       - run: npm ci
       - uses: changesets/action/version@v2
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
 
   pack:
     if: needs.select-mode.outputs.mode == 'publish'

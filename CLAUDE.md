@@ -47,7 +47,7 @@ After 1.0, follow normal semver: breaking changes are `major`.
 
 `.github/workflows/release.yml` runs on every push to `main`:
 
-1. If changesets are pending, it opens or updates a **Version Packages** PR that bumps `package.json`, writes `CHANGELOG.md` and deletes the changeset files.
+1. If changesets are pending, it opens or updates a **Version Packages** PR that bumps `package.json`, writes `CHANGELOG.md` and deletes the changeset files. It pushes as the release GitHub App, so CI runs on that PR like any other.
 2. Merging that PR pushes to `main` again. Now the version in `package.json` isn't on npm yet, so the workflow typechecks, tests, builds, packs and publishes it with npm trusted publishing (no npm token), then creates the `vX.Y.Z` git tag and GitHub release.
 3. Otherwise it does nothing.
 
@@ -55,14 +55,14 @@ After 1.0, follow normal semver: breaking changes are `major`.
 
 ### One-time setup (done by the maintainer, not Claude)
 
-- npm: the package must exist before trusted publishing can be configured, so the first `0.1.0` publish is done by hand (`npm publish`). Then on npmjs.com, package settings → Trusted publishing: GitHub Actions, repository `codyta/wordhug`, workflow `release.yml`.
-- GitHub: Settings → Actions → General → enable "Allow GitHub Actions to create and approve pull requests".
+- npm: the package must exist before trusted publishing can be configured, so the first `0.1.0` publish is done by hand (`npm publish`). Then on npmjs.com, package settings → Trusted publishing: GitHub Actions, repository `codyta/wordhug`, workflow `release.yml`, "Allow npm publish" ticked.
+- GitHub App for releases: a GitHub App owned by the maintainer, with repository permissions Contents and Pull requests set to read & write, installed on `codyta/wordhug` only. Its Client ID is the repository variable `RELEASE_APP_CLIENT_ID` and its private key the repository secret `RELEASE_APP_PRIVATE_KEY`. Without them the `version` job fails.
 
 ## Repository safeguards
 
 - `main` is protected by a ruleset: changes land only through PRs, the `test (22)` and `test (24)` CI checks must pass, and force-pushes and deletion are blocked. Always work on a branch and open a PR; never push to `main` or try to bypass the rules.
 - PRs are squash-merged and their branches deleted after merge.
-- The bot's **Version Packages** PR gets no CI run (GitHub doesn't run workflows on PRs created by `GITHUB_TOKEN`), so the maintainer merges it with the admin bypass. That's safe: the release workflow typechecks, tests and builds again before publishing.
+- The **Version Packages** PR is merged like any other PR once CI passes. Merging it publishes to npm, so it's the maintainer's call when to merge it. The admin bypass is for emergencies only.
 - Dependabot opens grouped weekly PRs for npm and GitHub Actions updates. Dev-dependency and Actions updates need no changeset. TypeScript stays on 6 (tsup can't build `.d.ts` files with TypeScript 7), so Dependabot ignores TypeScript and `@types/node` major updates.
 - Security reports go through GitHub private vulnerability reporting (see `SECURITY.md`).
 
