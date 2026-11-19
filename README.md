@@ -1,6 +1,6 @@
 # wordhug
 
-Keep phrases together on one line in React. Put square brackets around a phrase and it is wrapped in an inline-block element, so it moves to the next line as one unit instead of breaking in the middle.
+Keep phrases together on one line. Put square brackets around a phrase and it is wrapped in an inline-block element, so it moves to the next line as one unit instead of breaking in the middle. Works with React, Vue, Solid, Svelte and Astro, or as a plain HTML string.
 
 ```tsx
 <WordHug>{"Hello [big world] today"}</WordHug>
@@ -15,12 +15,34 @@ Useful for headings and short copy where a line break would split a name, a pric
 npm install wordhug
 ```
 
-React 18 or later is a peer dependency.
+Each framework is an optional peer dependency; install only the one you use.
+
+| Framework | Import from      | Peer dependency               | Text goes in   |
+| --------- | ---------------- | ----------------------------- | -------------- |
+| React     | `wordhug/react`  | `react` 18+                   | `children`     |
+| Vue       | `wordhug/vue`    | `vue` 3.3+                    | default slot   |
+| Solid     | `wordhug/solid`  | `solid-js` and `@solidjs/web` 2+ | `children`  |
+| Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
+| Astro     | `wordhug/astro`  | –                             | `text` prop    |
+| None      | `wordhug`        | –                             | `renderToHtml` |
+
+### Upgrading from 0.1
+
+The React component moved to its own subpath. Change the import:
+
+```diff
+- import { WordHug } from "wordhug";
++ import { WordHug } from "wordhug/react";
+```
+
+`parseBrackets` is still imported from `wordhug`.
 
 ## Usage
 
+### React
+
 ```tsx
-import { WordHug } from "wordhug";
+import { WordHug } from "wordhug/react";
 
 export function Hero() {
   return (
@@ -33,8 +55,6 @@ export function Hero() {
 
 `WordHug` has no hooks and no `"use client"` directive, so it renders in React Server Components as well as on the client.
 
-### Props
-
 | Prop        | Type                          | Default                       | Description                          |
 | ----------- | ----------------------------- | ----------------------------- | ------------------------------------ |
 | `children`  | `string \| null \| undefined` | –                             | Text to render. Empty input renders nothing. |
@@ -42,9 +62,72 @@ export function Hero() {
 | `className` | `string`                      | –                             | Class name on each group wrapper.    |
 | `style`     | `CSSProperties \| null`       | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
 
-Groups work without any stylesheet: each wrapper gets `display: inline-block` inline. To use a class instead (for example Tailwind's `inline-block` or `whitespace-nowrap`), pass `className` and `style={null}`.
+### Vue
 
-An inline-block group moves to the next line as a whole. If a group is wider than its container, it still wraps inside its own box rather than overflowing. Use `style={{ whiteSpace: "nowrap" }}` if you would rather it never break and overflow instead. Note that a parent's `text-decoration` (such as a link underline) does not carry into inline-block groups.
+```vue
+<script setup>
+import { WordHug } from "wordhug/vue";
+</script>
+
+<template>
+  <h1><WordHug class="nowrap">Fresh bread [delivered daily] to [your door]</WordHug></h1>
+</template>
+```
+
+The text comes from the default slot (plain text and `{{ }}` interpolations; elements in the slot are ignored). `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
+
+### Solid
+
+```tsx
+import { WordHug } from "wordhug/solid";
+
+<h1>
+  <WordHug class="nowrap">{"Fresh bread [delivered daily] to [your door]"}</WordHug>
+</h1>;
+```
+
+Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when `children` changes. Requires Solid 2.
+
+### Svelte
+
+```svelte
+<script>
+  import { WordHug } from "wordhug/svelte";
+</script>
+
+<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+```
+
+Props: `text` (string), `as` (tag name, default `"span"`), `class`, and `style` (string, default `"display: inline-block"`, `null` removes it). Requires Svelte 5; the component ships as source and is compiled by your build.
+
+### Astro
+
+```astro
+---
+import WordHug from "wordhug/astro";
+---
+
+<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+```
+
+Same props as Svelte: `text`, `as`, `class`, `style`. Renders static HTML with no client JavaScript.
+
+### Plain HTML: `renderToHtml`
+
+```ts
+import { renderToHtml } from "wordhug";
+
+renderToHtml("Fish & [chips]", { class: "nowrap" });
+// → 'Fish &amp; <span class="nowrap" style="display: inline-block">chips</span>'
+```
+
+Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attributes are HTML-escaped, so the result is safe to insert with `innerHTML`.
+
+### Styling
+
+Groups work without any stylesheet: each wrapper gets `display: inline-block` inline. To use a class instead (for example Tailwind's `inline-block` or `whitespace-nowrap`), pass a class and a `null` style.
+
+An inline-block group moves to the next line as a whole. If a group is wider than its container, it still wraps inside its own box rather than overflowing. Use `white-space: nowrap` if you would rather it never break and overflow instead. Note that a parent's `text-decoration` (such as a link underline) does not carry into inline-block groups.
 
 ### Parsing rules
 
@@ -55,11 +138,11 @@ An inline-block group moves to the next line as a whole. If a group is wider tha
 - Empty groups (`[]`) are dropped.
 - To show a literal bracket, put a backslash before it: `\[sic\]` renders `[sic]` and never forms a group. A backslash before any other character is kept as is.
 
-In JSX text a backslash is literal, so `<WordHug>Quote \[sic\]</WordHug>` works as written. Inside a JavaScript string the backslash itself needs escaping: `{"Quote \\[sic\\]"}`.
+In JSX text, Vue and Svelte templates and Astro attributes a backslash is literal, so `<WordHug>Quote \[sic\]</WordHug>` and `text="Quote \[sic\]"` work as written. Inside a JavaScript string the backslash itself needs escaping: `{"Quote \\[sic\\]"}`.
 
 ### `parseBrackets`
 
-The parser is exported on its own and does not import React, so you can use the tree with any renderer.
+The parser is exported from the package root, which imports no framework, so you can render the tree any way you like.
 
 ```ts
 import { parseBrackets } from "wordhug";
@@ -72,7 +155,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordHugProps` are exported too.
+Types `Node`, `TextNode`, `GroupNode` and `RenderToHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`.
 
 ## Development
 

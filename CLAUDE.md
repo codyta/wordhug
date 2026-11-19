@@ -1,6 +1,6 @@
 # wordhug
 
-A small React library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans so they wrap as one unit. `parseBrackets` (in `src/parse.ts`) is the React-free parser; `src/word-hug.tsx` renders its tree. Published to npm as `wordhug`.
+A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans so they wrap as one unit. `parseBrackets` (in `src/parse.ts`) is the framework-free parser and `renderToHtml` (`src/html.ts`) renders it to an escaped HTML string; both are exported from the package root. Each framework has its own subpath export: `src/react.tsx`, `src/vue.ts`, `src/solid.ts` (Solid 2, no JSX compiler needed), `src/svelte/` and `src/astro/`. The Svelte and Astro components ship as source (copied to `dist/` by `scripts/copy-components.mjs`) and import the parser from `"wordhug"`, which `vitest.config.ts` aliases to `src/index.ts`. Published to npm as `wordhug`.
 
 ## Commands
 
@@ -64,6 +64,7 @@ After 1.0, follow normal semver: breaking changes are `major`.
 
 ## Conventions
 
-- Keep the package free of runtime dependencies; React is a peer dependency only.
-- `WordHug` must stay hook-free with no `"use client"`, so it works in React Server Components.
-- When parsing rules or props change, update the README's "Parsing rules" or "Props" section in the same change.
+- Keep the package free of runtime dependencies; frameworks are optional peer dependencies only, and the package root must never import one.
+- The React `WordHug` must stay hook-free with no `"use client"`, so it works in React Server Components.
+- Keep the framework components' behaviour in step: a parsing or prop change applies to every adapter and its tests.
+- When parsing rules or props change, update the README's "Parsing rules" or the framework's usage section in the same change.
