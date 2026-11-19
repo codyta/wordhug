@@ -15,7 +15,7 @@ export default defineConfig({
         test: {
           name: "server",
           include: ["test/**/*.test.{ts,tsx}"],
-          exclude: ["test/**/*.dom.test.{ts,tsx}", "test/**/*.astro.test.ts"],
+          exclude: ["test/**/*.dom.test.{ts,tsx}", "test/**/*.astro.test.ts", "test/**/*.browser.test.{ts,tsx}"],
           environment: "node",
         },
       },
