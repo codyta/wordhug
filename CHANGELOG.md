@@ -1,5 +1,11 @@
 # wordhug
 
+## 0.2.1
+
+### Patch Changes
+
+- bfec499: Fix missing types for `wordhug/react`, `wordhug/vue`, `wordhug/solid` and `wordhug/svelte` in TypeScript projects that use `"moduleResolution": "node"`.
+
 ## 0.2.0
 
 ### Minor Changes
