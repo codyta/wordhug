@@ -54,6 +54,14 @@ After 1.0, follow normal semver: breaking changes are `major`.
 - npm: the package must exist before trusted publishing can be configured, so the first `0.1.0` publish is done by hand (`npm publish`). Then on npmjs.com, package settings → Trusted publishing: GitHub Actions, repository `codyta/wordhug`, workflow `release.yml`.
 - GitHub: Settings → Actions → General → enable "Allow GitHub Actions to create and approve pull requests".
 
+## Repository safeguards
+
+- `main` is protected by a ruleset: changes land only through PRs, the `test (22)` and `test (24)` CI checks must pass, and force-pushes and deletion are blocked. Always work on a branch and open a PR; never push to `main` or try to bypass the rules.
+- PRs are squash-merged and their branches deleted after merge.
+- The bot's **Version Packages** PR gets no CI run (GitHub doesn't run workflows on PRs created by `GITHUB_TOKEN`), so the maintainer merges it with the admin bypass. That's safe: the release workflow typechecks, tests and builds again before publishing.
+- Dependabot opens grouped weekly PRs for npm and GitHub Actions updates. Dev-dependency and Actions updates need no changeset.
+- Security reports go through GitHub private vulnerability reporting (see `SECURITY.md`).
+
 ## Conventions
 
 - Keep the package free of runtime dependencies; React is a peer dependency only.
