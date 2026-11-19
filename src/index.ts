@@ -1,4 +1,4 @@
 export { parseBrackets } from "./parse";
 export type { Node, TextNode, GroupNode } from "./parse";
-export { renderToHtml } from "./html";
-export type { RenderToHtmlOptions } from "./html";
+export { wordhugHtml, renderToHtml } from "./html";
+export type { WordhugHtmlOptions, RenderToHtmlOptions } from "./html";

@@ -1,6 +1,6 @@
 # wordhug
 
-A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans so they wrap as one unit. `parseBrackets` (in `src/parse.ts`) is the framework-free parser and `renderToHtml` (`src/html.ts`) renders it to an escaped HTML string; both are exported from the package root. Each framework has its own subpath export: `src/react.tsx`, `src/vue.ts`, `src/solid.ts` (Solid 2, no JSX compiler needed), `src/svelte/` and `src/astro/`. The Svelte and Astro components ship as source (copied to `dist/` by `scripts/copy-components.mjs`) and import the parser from `"wordhug"`, which `vitest.config.ts` aliases to `src/index.ts`. Published to npm as `wordhug`.
+A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans so they wrap as one unit. `parseBrackets` (in `src/parse.ts`) is the framework-free parser and `wordhugHtml` (`src/html.ts`) renders it to an escaped HTML string; both are exported from the package root. Each framework has its own subpath export: `src/react.tsx`, `src/vue.ts`, `src/solid.ts` (Solid 2, no JSX compiler needed), `src/svelte/` and `src/astro/`. The Svelte and Astro components ship as source (copied to `dist/` by `scripts/copy-components.mjs`) and import the parser from `"wordhug"`, which `vitest.config.ts` aliases to `src/index.ts`. Published to npm as `wordhug`.
 
 ## Commands
 

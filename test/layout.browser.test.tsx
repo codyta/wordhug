@@ -1,7 +1,7 @@
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
-import { renderToHtml, type RenderToHtmlOptions } from "../src";
+import { wordhugHtml, type WordhugHtmlOptions } from "../src";
 import { WordHug } from "../src/react";
 
 // A monospace font makes widths predictable: every character is 1ch wide.
@@ -17,9 +17,9 @@ function mount(widthCh: number): HTMLElement {
   return container;
 }
 
-function render(text: string, widthCh: number, options?: RenderToHtmlOptions): HTMLElement {
+function render(text: string, widthCh: number, options?: WordhugHtmlOptions): HTMLElement {
   const el = mount(widthCh);
-  el.innerHTML = renderToHtml(text, options);
+  el.innerHTML = wordhugHtml(text, options);
   return el;
 }
 

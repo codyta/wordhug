@@ -24,7 +24,7 @@ Each framework is an optional peer dependency; install only the one you use.
 | Solid     | `wordhug/solid`  | `solid-js` and `@solidjs/web` 2+ | `children`  |
 | Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
 | Astro     | `wordhug/astro`  | –                             | `text` prop    |
-| None      | `wordhug`        | –                             | `renderToHtml` |
+| None      | `wordhug`        | –                             | `wordhugHtml` |
 
 ### Upgrading from 0.1
 
@@ -112,16 +112,18 @@ import WordHug from "wordhug/astro";
 
 Same props as Svelte: `text`, `as`, `class`, `style`. Renders static HTML with no client JavaScript.
 
-### Plain HTML: `renderToHtml`
+### Plain HTML: `wordhugHtml`
 
 ```ts
-import { renderToHtml } from "wordhug";
+import { wordhugHtml } from "wordhug";
 
-renderToHtml("Fish & [chips]", { class: "nowrap" });
+wordhugHtml("Fish & [chips]", { class: "nowrap" });
 // → 'Fish &amp; <span class="nowrap" style="display: inline-block">chips</span>'
 ```
 
 Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attributes are HTML-escaped, so the result is safe to insert with `innerHTML`.
+
+This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.
 
 ### Styling
 
@@ -155,7 +157,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `RenderToHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`.
 
 ## Development
 
