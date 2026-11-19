@@ -1,6 +1,5 @@
-// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { createApp, h, nextTick, ref } from "vue";
+import { createApp, defineComponent, h, nextTick, ref } from "vue";
 import { WordHug } from "../src/vue";
 
 describe("Vue WordHug in the browser", () => {
@@ -12,5 +11,14 @@ describe("Vue WordHug in the browser", () => {
     text.value = "d [e]";
     await nextTick();
     expect(el.innerHTML).toBe('d <span style="display: inline-block;">e</span>');
+  });
+
+  it("accepts a component as the wrapper and passes it class and style", () => {
+    const Mark = defineComponent({
+      setup: (_, { slots }) => () => h("mark", slots.default?.()),
+    });
+    const el = document.createElement("div");
+    createApp({ render: () => h(WordHug, { as: Mark, class: "g", style: null }, () => "x [y]") }).mount(el);
+    expect(el.innerHTML).toBe('x <mark class="g">y</mark>');
   });
 });

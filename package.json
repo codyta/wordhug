@@ -87,7 +87,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "check:package": "node scripts/check-package.mjs"
   },
   "peerDependencies": {
     "@solidjs/web": ">=2",
@@ -125,6 +126,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "astro": "^7.4.13",
     "jsdom": "^31.0.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
