@@ -7,7 +7,7 @@ A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans s
 - `npm test`: Vitest, once
 - `npm run typecheck`: `tsc --noEmit`
 - `npm run build`: tsup, writes ESM, CJS and types to `dist/`, then copies the Svelte and Astro components
-- `npm run check:package`: after a build, checks every `exports` entry resolves from `dist/` via `import` and `require`
+- `npm run check:package`: after a build, checks every `exports` entry resolves from `dist/` via `import` and `require`, then runs publint and Are the Types Wrong (`attw`). attw skips `wordhug/astro` (TypeScript can't resolve `.astro` files) and the CJS-to-ESM rule (Svelte is ESM-only). `typesVersions` in `package.json` must list every typed subpath, or types break under `"moduleResolution": "node"`
 - `npm run changeset`: add a changeset (interactive)
 
 Run typecheck and tests before finishing any code change.
