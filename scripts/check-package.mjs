@@ -8,7 +8,7 @@ const pkg = require("../package.json");
 
 const expected = {
   ".": ["parseBrackets", "wordhugHtml", "renderToHtml"],
-  "./react": ["WordHug"],
+  "./react": ["WordHug", "wordhug"],
   "./vue": ["WordHug"],
   "./solid": ["WordHug"],
 };

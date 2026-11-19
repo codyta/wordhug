@@ -57,10 +57,27 @@ export function Hero() {
 
 | Prop        | Type                          | Default                       | Description                          |
 | ----------- | ----------------------------- | ----------------------------- | ------------------------------------ |
-| `children`  | `string \| null \| undefined` | –                             | Text to render. Empty input renders nothing. |
+| `children`  | `React.ReactNode`             | –                             | Text to render (see below). Empty input renders nothing. |
 | `as`        | `React.ElementType`           | `"span"`                      | Element that wraps each group.       |
 | `className` | `string`                      | –                             | Class name on each group wrapper.    |
 | `style`     | `CSSProperties \| null`       | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
+
+Children are read as text: strings and numbers are joined, including inside arrays and fragments, so JSX expressions work inside brackets. Other elements are ignored, so put formatting on the groups through `as` or `className` instead.
+
+```tsx
+<WordHug>Hello [{user.name}], you have [{count} new messages]</WordHug>
+```
+
+#### `wordhug()`
+
+The same thing as a function that returns a React node, for places where a component is awkward, such as props that take a node or text built in a loop. It takes the same input as `children` and the same options as the props.
+
+```tsx
+import { wordhug } from "wordhug/react";
+
+<Button label={wordhug("Save [all changes]")} />;
+wordhug("Pay [only $9.99]", { className: "nowrap", style: null });
+```
 
 ### Vue
 
@@ -157,7 +174,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`.
 
 ## Development
 
