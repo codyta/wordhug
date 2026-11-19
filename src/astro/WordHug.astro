@@ -1,0 +1,20 @@
+---
+// Renders `text` so that every [bracketed phrase] is wrapped in an element
+// (an inline-block span by default) that moves to the next line as one unit.
+import { renderToHtml } from "wordhug";
+
+export interface Props {
+  /** Text to render. `[...]` groups are kept together on one line. */
+  text: string | null | undefined;
+  /** Tag name used to wrap each group. Defaults to `"span"`. */
+  as?: string;
+  /** Class for each group wrapper. */
+  class?: string;
+  /** Style attribute for each group wrapper. Defaults to `"display: inline-block"`; `null` removes it. */
+  style?: string | null;
+}
+
+const { text, as, class: className, style } = Astro.props;
+---
+
+<Fragment set:html={renderToHtml(text, { as, class: className, style })} />

@@ -1,7 +1,7 @@
 {
   "name": "wordhug",
   "version": "0.1.0",
-  "description": "Keep [bracketed phrases] together on one line in React by wrapping them in inline-block spans.",
+  "description": "Keep [bracketed phrases] together on one line in React, Vue, Solid, Svelte and Astro by wrapping them in inline-block spans.",
   "license": "MIT",
   "author": "Cody Ta",
   "repository": {
@@ -31,10 +31,50 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./react": {
+      "import": {
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
+      },
+      "require": {
+        "types": "./dist/react.d.cts",
+        "default": "./dist/react.cjs"
+      }
+    },
+    "./vue": {
+      "import": {
+        "types": "./dist/vue.d.ts",
+        "default": "./dist/vue.js"
+      },
+      "require": {
+        "types": "./dist/vue.d.cts",
+        "default": "./dist/vue.cjs"
+      }
+    },
+    "./solid": {
+      "import": {
+        "types": "./dist/solid.d.ts",
+        "default": "./dist/solid.js"
+      },
+      "require": {
+        "types": "./dist/solid.d.cts",
+        "default": "./dist/solid.cjs"
+      }
+    },
+    "./svelte": {
+      "types": "./dist/svelte/index.d.ts",
+      "svelte": "./dist/svelte/index.js",
+      "default": "./dist/svelte/index.js"
+    },
+    "./astro": "./dist/astro/WordHug.astro",
     "./package.json": "./package.json"
   },
   "keywords": [
     "react",
+    "vue",
+    "solid",
+    "svelte",
+    "astro",
     "text",
     "line-break",
     "no-wrap",
@@ -42,7 +82,7 @@
     "brackets"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/copy-components.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
@@ -50,22 +90,49 @@
     "changeset": "changeset"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "@solidjs/web": ">=2",
+    "react": ">=18",
+    "solid-js": ">=2",
+    "svelte": ">=5",
+    "vue": ">=3.3"
+  },
+  "peerDependenciesMeta": {
+    "@solidjs/web": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "solid-js": {
+      "optional": true
+    },
+    "svelte": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
+    "@solidjs/web": "^2.0.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "jsdom": "^31.0.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "solid-js": "^2.0.3",
+    "svelte": "^5.58.0",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "vitest": "^5.1.1"
+    "vitest": "^5.1.1",
+    "vue": "^3.5.45"
   }
 }

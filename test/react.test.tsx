@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { WordHug } from "../src";
+import { WordHug } from "../src/react";
 
 afterEach(cleanup);
 
