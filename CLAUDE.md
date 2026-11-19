@@ -6,10 +6,13 @@ A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans s
 
 - `npm test`: Vitest, once
 - `npm run typecheck`: `tsc --noEmit`
-- `npm run build`: tsup, writes ESM, CJS and types to `dist/`
+- `npm run build`: tsup, writes ESM, CJS and types to `dist/`, then copies the Svelte and Astro components
+- `npm run check:package`: after a build, checks every `exports` entry resolves from `dist/` via `import` and `require`
 - `npm run changeset`: add a changeset (interactive)
 
 Run typecheck and tests before finishing any code change.
+
+Tests run as three Vitest projects: `server` (`test/*.test.ts`, Node), `dom` (`*.dom.test.ts[x]` and `*.dom.test.svelte.ts`, jsdom with the browser builds of Solid and Svelte) and `astro` (`*.astro.test.ts`, configured in `vitest.astro.config.ts`). Each framework has a server test and, except Astro, a browser test that checks updates.
 
 ## Versioning and releases
 

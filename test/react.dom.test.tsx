@@ -1,6 +1,6 @@
-// @vitest-environment jsdom
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
 import { WordHug } from "../src/react";
 
 afterEach(cleanup);
@@ -43,5 +43,23 @@ describe("WordHug", () => {
       expect(container.innerHTML).toBe("");
       cleanup();
     }
+  });
+
+  it("updates when the text changes", () => {
+    const { container, rerender } = render(<WordHug>{"[a b] c"}</WordHug>);
+    rerender(<WordHug>{"d [e]"}</WordHug>);
+    expect(container.innerHTML).toBe('d <span style="display: inline-block;">e</span>');
+  });
+
+  it("accepts a component as the wrapper", () => {
+    const Mark = ({ children, className }: { children?: ReactNode; className?: string }) => (
+      <mark className={className}>{children}</mark>
+    );
+    const { container } = render(
+      <WordHug as={Mark} className="g">
+        {"x [y]"}
+      </WordHug>,
+    );
+    expect(container.innerHTML).toBe('x <mark class="g">y</mark>');
   });
 });
