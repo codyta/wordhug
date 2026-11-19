@@ -166,6 +166,13 @@ npm run typecheck
 npm run build
 ```
 
+Layout tests run in headless Chromium and check that groups really stay on one line:
+
+```bash
+npx playwright install chromium
+npm run test:browser
+```
+
 ## License
 
 MIT

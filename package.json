@@ -104,7 +104,8 @@
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "changeset": "changeset",
-    "check:package": "node scripts/check-package.mjs && publint --strict && attw --pack . --exclude-entrypoints astro --ignore-rules cjs-resolves-to-esm"
+    "check:package": "node scripts/check-package.mjs && publint --strict && attw --pack . --exclude-entrypoints astro --ignore-rules cjs-resolves-to-esm",
+    "test:browser": "vitest run -c vitest.browser.config.ts"
   },
   "peerDependencies": {
     "@solidjs/web": ">=2",
@@ -143,8 +144,10 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@vitest/browser-playwright": "^5.1.1",
     "astro": "^7.4.13",
     "jsdom": "^31.0.1",
+    "playwright": "^1.65.1",
     "publint": "^0.3.25",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

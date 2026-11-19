@@ -20,5 +20,10 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # Layout tests need a real browser; one Node version is enough for them.
+      - if: matrix.node == 24
+        run: npx playwright install --with-deps chromium
+      - if: matrix.node == 24
+        run: npm run test:browser
       - run: npm run build
       - run: npm run check:package

@@ -5,6 +5,7 @@ A small library: `<WordHug>` wraps `[bracketed phrases]` in inline-block spans s
 ## Commands
 
 - `npm test`: Vitest, once
+- `npm run test:browser`: layout tests in headless Chromium (`test/*.browser.test.tsx`, `vitest.browser.config.ts`) that check groups really stay on one line. Needs `npx playwright install chromium` once. CI runs it on Node 24
 - `npm run typecheck`: `tsc --noEmit`
 - `npm run build`: tsup, writes ESM, CJS and types to `dist/`, then copies the Svelte and Astro components
 - `npm run check:package`: after a build, checks every `exports` entry resolves from `dist/` via `import` and `require`, then runs publint and Are the Types Wrong (`attw`). attw skips `wordhug/astro` (TypeScript can't resolve `.astro` files) and the CJS-to-ESM rule (Svelte is ESM-only). `typesVersions` in `package.json` must list every typed subpath, or types break under `"moduleResolution": "node"`
