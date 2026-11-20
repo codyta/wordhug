@@ -57,10 +57,27 @@ export function Hero() {
 
 | Prop        | Type                          | Default                       | Description                          |
 | ----------- | ----------------------------- | ----------------------------- | ------------------------------------ |
-| `children`  | `string \| null \| undefined` | –                             | Text to render. Empty input renders nothing. |
+| `children`  | `React.ReactNode`             | –                             | Text to render (see below). Empty input renders nothing. |
 | `as`        | `React.ElementType`           | `"span"`                      | Element that wraps each group.       |
 | `className` | `string`                      | –                             | Class name on each group wrapper.    |
 | `style`     | `CSSProperties \| null`       | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
+
+Children are read as text: strings and numbers are joined, including inside arrays and fragments, so JSX expressions work inside brackets. Other elements are ignored, so put formatting on the groups through `as` or `className` instead.
+
+```tsx
+<WordHug>Hello [{user.name}], you have [{count} new messages]</WordHug>
+```
+
+#### `wordhug()`
+
+The same thing as a function that returns a React node, for places where a component is awkward, such as props that take a node or text built in a loop. It takes the same input as `children` and the same options as the props.
+
+```tsx
+import { wordhug } from "wordhug/react";
+
+<Button label={wordhug("Save [all changes]")} />;
+wordhug("Pay [only $9.99]", { className: "nowrap", style: null });
+```
 
 ### Vue
 
@@ -76,6 +93,15 @@ import { WordHug } from "wordhug/vue";
 
 The text comes from the default slot (plain text and `{{ }}` interpolations; elements in the slot are ignored). `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
 
+`wordhug(text, options)` returns the same output as a VNode, for render functions, Vue JSX or anything that expects a VNode. Options are `as`, `class` and `style`, as for the component:
+
+```ts
+import { h } from "vue";
+import { wordhug } from "wordhug/vue";
+
+h("h1", [wordhug("Fresh bread [delivered daily]", { class: "nowrap" })]);
+```
+
 ### Solid
 
 ```tsx
@@ -86,7 +112,15 @@ import { WordHug } from "wordhug/solid";
 </h1>;
 ```
 
-Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when `children` changes. Requires Solid 2.
+Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
+
+`wordhug(text, options)` returns the same output as a `JSX.Element`, for props that take an element or text built in a loop. It reads its arguments once, so call it inside JSX (`{wordhug(title())}`) or a memo to keep it reactive:
+
+```tsx
+import { wordhug } from "wordhug/solid";
+
+<Button label={wordhug("Save [all changes]", { class: "nowrap" })} />;
+```
 
 ### Svelte
 
@@ -157,7 +191,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`, `wordhug/vue` and `wordhug/solid`.
 
 ## Development
 
