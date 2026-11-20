@@ -2,9 +2,7 @@ import { createComponent } from "solid-js";
 import { Dynamic, type JSX, type ValidComponent } from "@solidjs/web";
 import { parseBrackets, type Node } from "./parse";
 
-export interface WordHugProps {
-  /** Text to render. `[...]` groups are kept together on one line. */
-  children: string | null | undefined;
+export interface WordHugOptions {
   /** Element or component used to wrap each group. Defaults to `"span"`. */
   as?: ValidComponent;
   /** Class for each group wrapper. */
@@ -16,33 +14,54 @@ export interface WordHugProps {
   style?: JSX.CSSProperties | string | null;
 }
 
+export interface WordHugProps extends WordHugOptions {
+  /** Text to render. `[...]` groups are kept together on one line. */
+  children: string | null | undefined;
+}
+
 const DEFAULT_STYLE: JSX.CSSProperties = { display: "inline-block" };
 
 /**
  * Render text so that every `[bracketed phrase]` is wrapped in an element
  * (an inline-block span by default) that moves to the next line as one unit.
- * Re-renders when `children` changes.
+ * Re-renders when any prop changes.
  */
 export function WordHug(props: WordHugProps): JSX.Element {
+  return (() =>
+    wordhug(props.children, {
+      as: props.as,
+      class: props.class,
+      style: props.style,
+    })) as unknown as JSX.Element;
+}
+
+/**
+ * Like `<WordHug>`, as a function: returns a `JSX.Element` in which every
+ * `[bracketed phrase]` is wrapped in an element that moves to the next line
+ * as one unit. It reads its arguments once; call it inside JSX
+ * (`{wordhug(title())}`) or a memo to re-render when they change.
+ * Returns `null` for empty text.
+ */
+export function wordhug(
+  text: string | null | undefined,
+  { as = "span", class: className, style }: WordHugOptions = {},
+): JSX.Element {
+  if (!text) return null;
+  const groupStyle = style === undefined ? DEFAULT_STYLE : (style ?? undefined);
+
   const render = (nodes: Node[]): JSX.Element[] =>
     nodes.map((node) =>
       node.type === "text"
         ? node.value
         : createComponent(Dynamic as (props: Record<string, unknown>) => JSX.Element, {
-            get component() {
-              return props.as ?? "span";
-            },
-            get class() {
-              return props.class;
-            },
-            get style() {
-              return props.style === undefined ? DEFAULT_STYLE : (props.style ?? undefined);
-            },
+            component: as,
+            class: className,
+            style: groupStyle,
             get children() {
               return render(node.children);
             },
           }),
     );
 
-  return (() => (props.children ? render(parseBrackets(props.children)) : null)) as unknown as JSX.Element;
+  return render(parseBrackets(text)) as unknown as JSX.Element;
 }

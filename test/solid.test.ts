@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createComponent } from "solid-js";
 import { renderToString } from "@solidjs/web";
-import { WordHug, type WordHugProps } from "../src/solid";
+import { WordHug, wordhug, type WordHugProps } from "../src/solid";
 
 const ssr = (props: WordHugProps) => renderToString(() => createComponent(WordHug, props));
 
@@ -19,5 +19,22 @@ describe("Solid WordHug", () => {
 
   it("renders nothing for empty input", () => {
     for (const children of [null, undefined, ""]) expect(ssr({ children })).toBe("");
+  });
+});
+
+describe("Solid wordhug", () => {
+  it("returns an element that renders like the component", () => {
+    expect(renderToString(() => wordhug("Hello [big world] today"))).toMatch(
+      /^Hello <span _hk=\S+ style="display:inline-block">big world<\/span> today$/,
+    );
+  });
+
+  it("takes as, class and style options", () => {
+    const html = renderToString(() => wordhug("[a [b]]", { as: "b", class: "nowrap", style: null }));
+    expect(html.replace(/ _hk=\S+/g, "")).toBe('<b class="nowrap">a <b class="nowrap">b</b></b>');
+  });
+
+  it("returns null for empty text", () => {
+    for (const value of [null, undefined, ""]) expect(wordhug(value)).toBeNull();
   });
 });

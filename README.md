@@ -93,6 +93,15 @@ import { WordHug } from "wordhug/vue";
 
 The text comes from the default slot (plain text and `{{ }}` interpolations; elements in the slot are ignored). `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
 
+`wordhug(text, options)` returns the same output as a VNode, for render functions, Vue JSX or anything that expects a VNode. Options are `as`, `class` and `style`, as for the component:
+
+```ts
+import { h } from "vue";
+import { wordhug } from "wordhug/vue";
+
+h("h1", [wordhug("Fresh bread [delivered daily]", { class: "nowrap" })]);
+```
+
 ### Solid
 
 ```tsx
@@ -103,7 +112,15 @@ import { WordHug } from "wordhug/solid";
 </h1>;
 ```
 
-Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when `children` changes. Requires Solid 2.
+Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
+
+`wordhug(text, options)` returns the same output as a `JSX.Element`, for props that take an element or text built in a loop. It reads its arguments once, so call it inside JSX (`{wordhug(title())}`) or a memo to keep it reactive:
+
+```tsx
+import { wordhug } from "wordhug/solid";
+
+<Button label={wordhug("Save [all changes]", { class: "nowrap" })} />;
+```
 
 ### Svelte
 
@@ -174,7 +191,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`, `wordhug/vue` and `wordhug/solid`.
 
 ## Development
 

@@ -1,14 +1,28 @@
 import {
   defineComponent,
+  Fragment,
   h,
   Text,
   type Component,
+  type HTMLAttributes,
   type PropType,
   type StyleValue,
   type VNode,
   type VNodeChild,
 } from "vue";
 import { parseBrackets, type Node } from "./parse";
+
+export interface WordHugOptions {
+  /** Element or component used to wrap each group. Defaults to `"span"`. */
+  as?: string | Component;
+  /** Class for each group wrapper, in any form Vue accepts (string, array or object). */
+  class?: HTMLAttributes["class"];
+  /**
+   * Inline style for each group wrapper. Defaults to `{ display: "inline-block" }`.
+   * Pass `null` to leave styling entirely to `class`.
+   */
+  style?: StyleValue | null;
+}
 
 const DEFAULT_STYLE: StyleValue = { display: "inline-block" };
 
@@ -26,25 +40,40 @@ export const WordHug = defineComponent({
     as: { type: [String, Object, Function] as PropType<string | Component>, default: "span" },
   },
   setup(props, { slots, attrs }) {
-    return () => {
-      const text = slotText(slots.default?.());
-      if (!text) return null;
-
-      const style = "style" in attrs ? (attrs.style as StyleValue) : DEFAULT_STYLE;
-      const groupProps: Record<string, unknown> = {};
-      if (attrs.class != null) groupProps.class = attrs.class;
-      if (style != null) groupProps.style = style;
-      const render = (nodes: Node[]): VNodeChild[] =>
-        nodes.map((node) =>
-          node.type === "text"
-            ? node.value
-            : h(props.as as string, groupProps, { default: () => render(node.children) }),
-        );
-
-      return render(parseBrackets(text));
-    };
+    return () =>
+      wordhug(slotText(slots.default?.()), {
+        as: props.as,
+        class: attrs.class as WordHugOptions["class"],
+        style: "style" in attrs ? (attrs.style as StyleValue | null) : undefined,
+      });
   },
 });
+
+/**
+ * Like `<WordHug>`, as a function: returns a VNode in which every
+ * `[bracketed phrase]` is wrapped in an element that moves to the next line
+ * as one unit. Use it in render functions, Vue JSX, or anywhere a VNode is
+ * expected. Returns `null` for empty text.
+ */
+export function wordhug(
+  text: string | null | undefined,
+  { as = "span", class: className, style = DEFAULT_STYLE }: WordHugOptions = {},
+): VNode | null {
+  if (!text) return null;
+
+  const groupProps: Record<string, unknown> = {};
+  if (className != null) groupProps.class = className;
+  if (style != null) groupProps.style = style;
+
+  const render = (nodes: Node[]): VNodeChild[] =>
+    nodes.map((node) =>
+      node.type === "text"
+        ? node.value
+        : h(as as string, groupProps, { default: () => render(node.children) }),
+    );
+
+  return h(Fragment, render(parseBrackets(text)));
+}
 
 /** Concatenate the plain text in a slot. Elements and components are ignored. */
 function slotText(vnodes: VNode[] | undefined): string {
