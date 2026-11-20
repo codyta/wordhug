@@ -1,6 +1,6 @@
 import { parseBrackets, type Node } from "./parse";
 
-export interface RenderToHtmlOptions {
+export interface WordhugHtmlOptions {
   /** Tag name used to wrap each group. Defaults to `"span"`. */
   as?: string;
   /** Class attribute for each group wrapper. */
@@ -19,9 +19,9 @@ const TAG_NAME = /^[a-zA-Z][a-zA-Z0-9-]*$/;
  * in an element (an inline-block span by default). Text and attribute values
  * are escaped, so the result is safe to insert as HTML.
  */
-export function renderToHtml(
+export function wordhugHtml(
   text: string | null | undefined,
-  { as = "span", class: className, style = "display: inline-block" }: RenderToHtmlOptions = {},
+  { as = "span", class: className, style = "display: inline-block" }: WordhugHtmlOptions = {},
 ): string {
   if (!text) return "";
   if (!TAG_NAME.test(as)) throw new TypeError(`wordhug: invalid tag name ${JSON.stringify(as)}`);
@@ -53,3 +53,9 @@ const HTML_ESCAPES: Record<string, string> = {
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]!);
 }
+
+/** @deprecated Renamed to {@link wordhugHtml}. This alias will be removed in a future release. */
+export const renderToHtml = wordhugHtml;
+
+/** @deprecated Renamed to {@link WordhugHtmlOptions}. */
+export type RenderToHtmlOptions = WordhugHtmlOptions;

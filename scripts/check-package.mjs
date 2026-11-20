@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url);
 const pkg = require("../package.json");
 
 const expected = {
-  ".": ["parseBrackets", "renderToHtml"],
+  ".": ["parseBrackets", "wordhugHtml", "renderToHtml"],
   "./react": ["WordHug"],
   "./vue": ["WordHug"],
   "./solid": ["WordHug"],
