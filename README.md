@@ -9,6 +9,38 @@ Keep phrases together on one line. Put square brackets around a phrase and it is
 
 Useful for headings and short copy where a line break would split a name, a price, or a phrase that should read as one unit.
 
+## Why
+
+wordhug started with Vietnamese. Many Vietnamese words are compounds of several syllables written with spaces between them, like *ăn mặc* (to dress), *học sinh* (student) or *Hà Nội*. To a browser every syllable is a separate word, so a line can break in the middle of one, even in a nicely balanced heading:
+
+```
+Mẹo chọn đồ giúp bạn ăn
+mặc đẹp hơn mỗi ngày
+```
+
+"Outfit tips to help you dress better every day" now opens with *Mẹo chọn đồ giúp bạn ăn*, "outfit tips to help you eat". A bad break doesn't just look untidy; it can change what the sentence says.
+
+Content writers and designers usually know exactly where a line should and shouldn't break. The common fix has been a hard `<br />`, but that:
+
+- **mixes presentation into content:** a visual choice becomes part of the text's markup and meaning;
+- **fits only one layout:** a break placed for a wide screen lands in the wrong spot on a phone;
+- **makes copying messy:** copied text picks up stray line breaks.
+
+wordhug flips the approach: instead of saying where to break, you mark what belongs together. The text still wraps naturally at any width, just never inside a group:
+
+```tsx
+<WordHug>{"Mẹo chọn đồ giúp bạn [ăn mặc] đẹp hơn mỗi ngày"}</WordHug>
+```
+
+```
+Mẹo chọn đồ giúp bạn
+ăn mặc đẹp hơn mỗi ngày
+```
+
+It works with `text-wrap: balance` too: the browser still balances the lines, treating each group as a single word.
+
+The same applies in any language: names, prices, dates and short phrases that read as one unit.
+
 ## Install
 
 ```bash
