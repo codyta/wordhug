@@ -1,0 +1,51 @@
+---
+title: Styling
+description: Style groups with a class, change the wrapper element, and use text-wrap balance.
+---
+
+import WordHug from "wordhug/astro";
+import Demo from "../../components/Demo.astro";
+
+## Without a stylesheet
+
+Groups work without any CSS: each wrapper gets `style="display: inline-block"`. That's all wordhug needs.
+
+## With a class
+
+To style groups with a class instead, for example Tailwind's `inline-block` or `whitespace-nowrap`, pass a class and a `null` style:
+
+```tsx
+<WordHug className="inline-block" style={null}>{"Fresh bread [delivered daily]"}</WordHug>
+```
+
+The prop is `className` in React and `class` everywhere else. In Vue, write `:style="null"`.
+
+## A different element
+
+`as` changes the element that wraps each group. It defaults to `span`:
+
+```tsx
+<WordHug as="b">{"Fresh bread [delivered daily]"}</WordHug>
+// → Fresh bread <b style="display: inline-block">delivered daily</b>
+```
+
+React, Vue and Solid also accept a component; Svelte, Astro, the HTML string and the markdown plugin take a tag name.
+
+## Balanced headings
+
+wordhug works with `text-wrap: balance`: the browser still balances the lines, treating each group as a single word.
+
+```css
+h1 {
+  text-wrap: balance;
+}
+```
+
+<Demo label="text-wrap: balance" width={22}>
+  <p style="text-wrap: balance"><WordHug text="Fresh bread [delivered daily] to [your door], [only $3] a loaf" /></p>
+</Demo>
+
+## Things to know
+
+- **A group wider than its container** still wraps inside its own box rather than overflowing. Use `white-space: nowrap` if you'd rather it never break and overflow instead.
+- **Underlines don't carry over:** a parent's `text-decoration`, such as a link underline, doesn't reach into inline-block groups. Put the underline on the group itself if you need it.

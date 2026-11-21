@@ -1,3 +1,8 @@
+/**
+ * The Vue component and function.
+ *
+ * @module wordhug/vue
+ */
 import {
   defineComponent,
   Fragment,

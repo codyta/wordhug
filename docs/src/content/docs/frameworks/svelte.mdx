@@ -1,0 +1,32 @@
+---
+title: Svelte
+description: The WordHug component for Svelte 5.
+---
+
+import { WordHug } from "wordhug/svelte";
+import Demo from "../../../components/Demo.astro";
+
+```svelte
+<script>
+  import { WordHug } from "wordhug/svelte";
+</script>
+
+<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+```
+
+<Demo label="Svelte" width={18}>
+  <p><WordHug text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+Requires Svelte 5. The component ships as source and is compiled by your build, like your own components.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `text` | `string` | – | Text to render. Empty input renders nothing. |
+| `as` | tag name | `"span"` | Element that wraps each group. |
+| `class` | `string` | – | Class on each group wrapper. |
+| `style` | `string \| null` | `"display: inline-block"` | Style attribute on each group wrapper. `null` removes it. |
+
+The text goes in the `text` prop rather than the children, because a Svelte 5 snippet can't be read as text.

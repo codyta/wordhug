@@ -1,3 +1,8 @@
+/**
+ * The Solid component and function.
+ *
+ * @module wordhug/solid
+ */
 import { createComponent } from "solid-js";
 import { Dynamic, type JSX, type ValidComponent } from "@solidjs/web";
 import { parseBrackets, type Node } from "./parse";

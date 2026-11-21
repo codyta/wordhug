@@ -1,0 +1,12 @@
+---
+// The same text with the brackets removed and no groups, to compare against.
+import { parseBrackets, type Node } from "wordhug";
+
+interface Props {
+  text: string;
+}
+const flatten = (nodes: Node[]): string =>
+  nodes.map((node) => (node.type === "text" ? node.value : flatten(node.children))).join("");
+---
+
+{flatten(parseBrackets(Astro.props.text))}

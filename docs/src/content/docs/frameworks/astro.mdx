@@ -1,0 +1,49 @@
+---
+title: Astro
+description: The WordHug component for Astro, and wordhug in Astro's markdown.
+---
+
+import WordHug from "wordhug/astro";
+import Demo from "../../../components/Demo.astro";
+
+```astro
+---
+import WordHug from "wordhug/astro";
+---
+
+<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+```
+
+<Demo label="Astro" width={18}>
+  <p><WordHug text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+The component renders static HTML with no client JavaScript.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `text` | `string` | – | Text to render. Empty input renders nothing. |
+| `as` | tag name | `"span"` | Element that wraps each group. |
+| `class` | `string` | – | Class on each group wrapper. |
+| `style` | `string \| null` | `"display: inline-block"` | Style attribute on each group wrapper. `null` removes it. |
+
+## Markdown and MDX
+
+For content collections and `.md` or `.mdx` pages, add the [rehype plugin](/wordhug/guides/markdown/) to Astro's markdown config, and writers can use brackets in their markdown:
+
+```js
+// astro.config.mjs
+import rehypeWordhug from "wordhug/rehype";
+
+export default { markdown: { rehypePlugins: [rehypeWordhug] } };
+```
+
+Astro 7 renders markdown with its new default processor, which doesn't run rehype plugins. Install `@astrojs/markdown-remark` so `rehypePlugins` work:
+
+```bash
+npm install @astrojs/markdown-remark
+```
+
+These docs are built that way: their own markdown goes through wordhug.

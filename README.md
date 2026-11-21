@@ -9,6 +9,8 @@ Keep phrases together on one line. Put square brackets around a phrase and it is
 
 Useful for headings and short copy where a line break would split a name, a price, or a phrase that should read as one unit.
 
+**[Documentation](https://codyta.github.io/wordhug/)**: guides for every framework, live examples and the API reference.
+
 ## Why
 
 wordhug started with Vietnamese. Many Vietnamese words are compounds of several syllables written with spaces between them, like *ăn mặc* (to dress), *học sinh* (student) or *Hà Nội*. To a browser every syllable is a separate word, so a line can break in the middle of one, even in a nicely balanced heading:
@@ -238,6 +240,8 @@ import rehypeWordhug from "wordhug/rehype";
 export default { markdown: { rehypePlugins: [rehypeWordhug] } };
 ```
 
+Astro 7's default markdown processor doesn't run rehype plugins, so also install `@astrojs/markdown-remark`.
+
 Options are `as` (tag name), `class` and `style`, as for `wordhugHtml`.
 
 The plugin runs after markdown is parsed, so links (`[text](url)`), references with a definition, footnotes and task list boxes are already handled; only brackets left in the text become groups. A group can contain inline formatting such as `**bold**` or `*italic*`, but can't start in one element and end in another. Code spans, code blocks and `<pre>`, `<script>` and `<style>` are left alone, and text without groups is left exactly as it was.
@@ -285,6 +289,13 @@ npm install
 npm test
 npm run typecheck
 npm run build
+```
+
+The docs site lives in `docs/` (Astro Starlight) and uses the local source:
+
+```bash
+npm install --prefix docs
+npm run dev --prefix docs
 ```
 
 Layout tests run in headless Chromium and check that groups really stay on one line:

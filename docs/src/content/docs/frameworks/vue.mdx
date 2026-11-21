@@ -1,0 +1,57 @@
+---
+title: Vue
+description: The WordHug component and wordhug() function for Vue 3.
+---
+
+import VueDemo from "../../../components/vue/VueDemo.vue";
+import Demo from "../../../components/Demo.astro";
+
+```vue
+<script setup>
+import { WordHug } from "wordhug/vue";
+</script>
+
+<template>
+  <h1><WordHug class="nowrap">Fresh bread [delivered daily] to [your door]</WordHug></h1>
+</template>
+```
+
+<Demo label="Vue" width={18}>
+  <p><VueDemo text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+Requires Vue 3.3 or later.
+
+## Props and attributes
+
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| default slot | text and elements | – | What to render. |
+| `as` | tag name or component | `"span"` | Element that wraps each group. |
+| `class` | any class value | – | Class on each group wrapper, not on a root element. |
+| `style` | any style value, or `null` | `display: inline-block` | Style on each group wrapper. `:style="null"` removes it. |
+
+## The slot
+
+Plain text and `{{ }}` interpolations in the slot are joined into one text, so interpolations work inside brackets:
+
+```vue
+<WordHug>Hello [{{ user.name }}], you have [{{ count }} new messages]</WordHug>
+```
+
+Elements and components stay where they are, each as one unit a group can contain. Brackets inside an element are not read.
+
+```vue
+<WordHug>Fresh bread for [only <strong>$3</strong> a loaf]</WordHug>
+```
+
+## `wordhug()`
+
+Returns the same output as a VNode, for render functions, Vue JSX or anything that expects a VNode. Options are `as`, `class` and `style`, as for the component:
+
+```ts
+import { h } from "vue";
+import { wordhug } from "wordhug/vue";
+
+h("h1", [wordhug("Fresh bread [delivered daily]", { class: "nowrap" })]);
+```

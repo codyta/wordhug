@@ -1,0 +1,53 @@
+name: Docs
+
+# Builds the docs site in docs/ and publishes it to GitHub Pages.
+# Needs Settings → Pages → Source set to "GitHub Actions" once.
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "src/**", "package.json", ".github/workflows/docs.yml"]
+  pull_request:
+    paths: ["docs/**", "src/**", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            docs/package-lock.json
+      # The docs import wordhug from src/, which resolves its types from the root packages.
+      - run: npm ci
+      - run: npm ci
+        working-directory: docs
+      - run: npm run build
+        working-directory: docs
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

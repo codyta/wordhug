@@ -1,0 +1,72 @@
+---
+title: React
+description: The WordHug component and wordhug() function for React.
+---
+
+import ReactDemo from "../../../components/react/ReactDemo.tsx";
+import Demo from "../../../components/Demo.astro";
+
+```tsx
+import { WordHug } from "wordhug/react";
+
+export function Hero() {
+  return (
+    <h1>
+      <WordHug>{"Fresh bread [delivered daily] to [your door]"}</WordHug>
+    </h1>
+  );
+}
+```
+
+<Demo label="React" width={18}>
+  <p><ReactDemo text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+`WordHug` has no hooks and no `"use client"` directive, so it renders in React Server Components as well as on the client. Requires React 18 or later.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `React.ReactNode` | – | Text and elements to render. Empty input renders nothing. |
+| `as` | `React.ElementType` | `"span"` | Element or component that wraps each group. |
+| `className` | `string` | – | Class name on each group wrapper. |
+| `style` | `CSSProperties \| null` | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
+
+## Children
+
+Strings and numbers in the children are joined into one text, including inside arrays and fragments, so JSX expressions work inside brackets:
+
+```tsx
+<WordHug>Hello [{user.name}], you have [{count} new messages]</WordHug>
+```
+
+Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
+
+```tsx
+<WordHug>Fresh bread for [only <strong>$3</strong> a loaf]</WordHug>
+```
+
+Write JSX text directly, or put it in a string expression. In a string, a literal bracket needs two backslashes: `{"Quote \\[sic\\]"}`. See [Parsing rules](/wordhug/parsing-rules/).
+
+## `wordhug()`
+
+The same thing as a function that returns a React node, for places where a component is awkward, such as props that take a node or text built in a loop. It takes the same input as `children` and the same options as the props.
+
+```tsx
+import { wordhug } from "wordhug/react";
+
+<Button label={wordhug("Save [all changes]")} />;
+wordhug("Pay [only $9.99]", { className: "nowrap", style: null });
+```
+
+## Upgrading from 0.1
+
+The React component moved to its own subpath:
+
+```diff
+- import { WordHug } from "wordhug";
++ import { WordHug } from "wordhug/react";
+```
+
+`parseBrackets` is still imported from `wordhug`.
