@@ -1,3 +1,8 @@
+/**
+ * The rehype plugin for markdown.
+ *
+ * @module wordhug/rehype
+ */
 import { parseParts, type MixedNode } from "./parse";
 
 export interface RehypeWordhugOptions {

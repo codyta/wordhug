@@ -1,3 +1,8 @@
+/**
+ * The React component and function.
+ *
+ * @module wordhug/react
+ */
 import {
   Fragment,
   isValidElement,

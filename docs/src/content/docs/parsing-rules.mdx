@@ -1,0 +1,43 @@
+---
+title: Parsing rules
+description: How wordhug reads brackets, nesting, whitespace and escapes.
+---
+
+Every framework, the HTML string and the markdown plugin follow the same rules.
+
+| Rule | Input | Output |
+| --- | --- | --- |
+| `[...]` marks a group | `Hello [big world]` | `Hello <span>big world</span>` |
+| Groups can nest | `[a [b c] d]` | `<span>a <span>b c</span> d</span>` |
+| A bracket without a partner stays as text | `a ] b [ c` | `a ] b [ c` |
+| Text touching a bracket stays attached | `(see [page 3])` | `(see <span>page 3</span>)` |
+| Empty groups are dropped | `a [] b` | `a b` |
+| A backslash makes a literal bracket | `\[sic\]` | `[sic]` |
+
+In the table, `<span>` stands for the full wrapper, `<span style="display: inline-block">`.
+
+## Whitespace
+
+Runs of whitespace collapse to a single space, and whitespace at the start and end of the text and of each group is removed: `[  big   world ]` becomes a group containing `big world`.
+
+## Literal brackets
+
+To show a bracket instead of starting a group, put a backslash before it. The backslash is removed. A backslash before any other character is kept as it is.
+
+How many backslashes you type depends on where the text is written:
+
+| Where | Write | Why |
+| --- | --- | --- |
+| JSX text, Vue and Svelte templates, Astro attributes | `Quote \[sic\]` | a backslash is literal there |
+| A JavaScript string | `{"Quote \\[sic\\]"}` | the string needs its own backslash escaped |
+| Markdown | `Quote \\[sic\\]` | markdown removes one backslash before a bracket |
+
+## Elements inside groups
+
+In React and Vue, the children can contain elements as well as text. Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
+
+```tsx
+<WordHug>Fresh bread for [only <strong>$3</strong> a loaf]</WordHug>
+```
+
+The markdown plugin follows the same rule for inline formatting such as bold and italic.

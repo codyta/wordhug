@@ -1,0 +1,17 @@
+---
+// A box around rendered output that readers can drag narrower or wider.
+interface Props {
+  /** Shown above the box, such as the framework or "without wordhug". */
+  label: string;
+  /** Starting width in `ch`. */
+  width?: number;
+}
+const { label, width = 20 } = Astro.props;
+---
+
+<figure class="demo not-content">
+  <figcaption class="demo-label"><span>{label}</span><span class="demo-hint" aria-hidden="true">drag the corner ↘</span></figcaption>
+  <div class="demo-frame" style={`--demo-width: ${width}ch`}>
+    <slot />
+  </div>
+</figure>

@@ -1,0 +1,29 @@
+---
+title: HTML string
+description: wordhugHtml renders text to an escaped HTML string, for any framework or none.
+---
+
+`wordhugHtml` turns text into an HTML string, for server templates, `innerHTML`, emails or any framework without its own wordhug component.
+
+```ts
+import { wordhugHtml } from "wordhug";
+
+wordhugHtml("Fish & [chips]", { class: "nowrap" });
+// → 'Fish &amp; <span class="nowrap" style="display: inline-block">chips</span>'
+```
+
+Text and attributes are HTML-escaped, so the result is safe to insert with `innerHTML`, even with text from users.
+
+## Options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `as` | tag name | `"span"` | Element that wraps each group. A name that isn't a plain tag name throws. |
+| `class` | `string` | – | Class on each group wrapper. |
+| `style` | `string \| null` | `"display: inline-block"` | Style attribute on each group wrapper. `null` removes it. |
+
+Empty input (`""`, `null` or `undefined`) returns `""`.
+
+## `renderToHtml`
+
+This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.

@@ -1,0 +1,14 @@
+---
+// Solid 2 has no Astro integration yet, so its output is rendered here at build
+// time with Solid's own server renderer: the same HTML a Solid app sends.
+// The text comes in as `text`, because Astro keeps `children` for itself.
+import { createComponent } from "solid-js";
+import { renderToString } from "@solidjs/web";
+import { WordHug, type WordHugOptions } from "wordhug/solid";
+
+type Props = WordHugOptions & { text: string };
+const { text, ...options } = Astro.props;
+const html = renderToString(() => createComponent(WordHug, { ...options, children: text })).replace(/ _hk="[^"]*"/g, "");
+---
+
+<Fragment set:html={html} />

@@ -1,0 +1,105 @@
+---
+title: Getting started
+description: Install wordhug and wrap your first phrase.
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import WordHug from "wordhug/astro";
+import Demo from "../../components/Demo.astro";
+
+## Install
+
+```bash
+npm install wordhug
+```
+
+wordhug has no runtime dependencies. Each framework is an optional peer dependency, so install only the one you use.
+
+| Framework | Import from | Peer dependency | Text goes in |
+| --- | --- | --- | --- |
+| [React](/wordhug/frameworks/react/) | `wordhug/react` | `react` 18+ | `children` |
+| [Vue](/wordhug/frameworks/vue/) | `wordhug/vue` | `vue` 3.3+ | default slot |
+| [Solid](/wordhug/frameworks/solid/) | `wordhug/solid` | `solid-js` and `@solidjs/web` 2+ | `children` |
+| [Svelte](/wordhug/frameworks/svelte/) | `wordhug/svelte` | `svelte` 5+ | `text` prop |
+| [Astro](/wordhug/frameworks/astro/) | `wordhug/astro` | – | `text` prop |
+| [Markdown](/wordhug/guides/markdown/) | `wordhug/rehype` | – | markdown text |
+| [None](/wordhug/guides/html/) | `wordhug` | – | `wordhugHtml(text)` |
+
+## Wrap a phrase
+
+Put square brackets around the words that should stay on one line:
+
+<Tabs syncKey="framework">
+  <TabItem label="React">
+    ```tsx
+    import { WordHug } from "wordhug/react";
+
+    <h1>
+      <WordHug>{"Fresh bread [delivered daily] to [your door]"}</WordHug>
+    </h1>;
+    ```
+  </TabItem>
+  <TabItem label="Vue">
+    ```vue
+    <script setup>
+    import { WordHug } from "wordhug/vue";
+    </script>
+
+    <template>
+      <h1><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></h1>
+    </template>
+    ```
+  </TabItem>
+  <TabItem label="Solid">
+    ```tsx
+    import { WordHug } from "wordhug/solid";
+
+    <h1>
+      <WordHug>{"Fresh bread [delivered daily] to [your door]"}</WordHug>
+    </h1>;
+    ```
+  </TabItem>
+  <TabItem label="Svelte">
+    ```svelte
+    <script>
+      import { WordHug } from "wordhug/svelte";
+    </script>
+
+    <h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+    ```
+  </TabItem>
+  <TabItem label="Astro">
+    ```astro
+    ---
+    import WordHug from "wordhug/astro";
+    ---
+
+    <h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+    ```
+  </TabItem>
+  <TabItem label="HTML">
+    ```ts
+    import { wordhugHtml } from "wordhug";
+
+    element.innerHTML = wordhugHtml("Fresh bread [delivered daily] to [your door]");
+    ```
+  </TabItem>
+</Tabs>
+
+Each group becomes an inline-block element, so it moves to the next line as a whole. The brackets themselves are removed:
+
+```html
+Fresh bread <span style="display: inline-block">delivered daily</span> to <span style="display: inline-block">your door</span>
+```
+
+<Demo label="Result" width={18}>
+  <p><WordHug text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+No stylesheet is needed: the inline style is enough. To use a class instead, see [Styling](/wordhug/styling/).
+
+## Next steps
+
+- [Parsing rules](/wordhug/parsing-rules/): nesting, unmatched brackets and how to write a literal bracket.
+- Your framework's page, for every prop and the `wordhug()` function.
+- [Markdown](/wordhug/guides/markdown/), if your text comes from markdown or MDX.

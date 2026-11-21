@@ -1,0 +1,40 @@
+---
+title: Solid
+description: The WordHug component and wordhug() function for Solid 2.
+---
+
+import SolidDemo from "../../../components/SolidDemo.astro";
+import Demo from "../../../components/Demo.astro";
+
+```tsx
+import { WordHug } from "wordhug/solid";
+
+<h1>
+  <WordHug class="nowrap">{"Fresh bread [delivered daily] to [your door]"}</WordHug>
+</h1>;
+```
+
+<Demo label="Solid" width={18}>
+  <p><SolidDemo text="Fresh bread [delivered daily] to [your door]" /></p>
+</Demo>
+
+Requires Solid 2 (`solid-js` and `@solidjs/web`). The component needs no JSX compiler of its own and re-renders when any prop changes.
+
+## Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `children` | `string` | – | Text to render. Empty input renders nothing. |
+| `as` | tag name or component | `"span"` | Element that wraps each group. |
+| `class` | `string` | – | Class on each group wrapper. |
+| `style` | object, string or `null` | `{ display: "inline-block" }` | Inline style on each group wrapper. `null` removes it. |
+
+## `wordhug()`
+
+Returns the same output as a `JSX.Element`, for props that take an element or text built in a loop. It reads its arguments once, so call it inside JSX (`{wordhug(title())}`) or a memo to keep it reactive:
+
+```tsx
+import { wordhug } from "wordhug/solid";
+
+<Button label={wordhug("Save [all changes]", { class: "nowrap" })} />;
+```

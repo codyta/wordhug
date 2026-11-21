@@ -1,0 +1,54 @@
+/* A box you can drag narrower or wider, to see where lines break. */
+.demo {
+  margin-block: 1rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.demo-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0.75rem;
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+  background: var(--sl-color-gray-6);
+  border-bottom: 1px solid var(--sl-color-gray-5);
+}
+
+.demo-frame {
+  width: var(--demo-width, 20ch);
+  min-width: 6ch;
+  max-width: 100%;
+  padding: 0.75rem 1rem;
+  overflow: auto;
+  resize: horizontal;
+  font-size: 1.375rem;
+  line-height: 1.4;
+  border-right: 2px dashed var(--sl-color-gray-4);
+}
+
+.demo-frame > * {
+  margin: 0;
+}
+
+/* Groups are highlighted in demos only, so the docs' own text stays plain. */
+.demo-frame [style*="inline-block"] {
+  background: var(--sl-color-accent-low);
+  box-shadow: inset 0 0 0 1px var(--sl-color-accent);
+  border-radius: 3px;
+}
+
+.demo-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0 1rem;
+}
+
+/* Touch screens can't drag a resize handle. */
+@media (pointer: coarse) {
+  .demo-hint {
+    display: none;
+  }
+}

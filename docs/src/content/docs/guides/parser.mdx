@@ -1,0 +1,54 @@
+---
+title: Parser
+description: parseBrackets returns the tree, so you can render groups any way you like.
+---
+
+The parser is exported from the package root, which imports no framework, so you can render the tree however you like: in a framework wordhug doesn't cover, in a canvas, or in a native app.
+
+```ts
+import { parseBrackets } from "wordhug";
+
+parseBrackets("Hello [big world] today");
+// [
+//   { type: "text", value: "Hello " },
+//   { type: "group", children: [{ type: "text", value: "big world" }] },
+//   { type: "text", value: " today" },
+// ]
+```
+
+It follows the [parsing rules](/wordhug/parsing-rules/): groups nest, unmatched brackets stay as text, whitespace is collapsed, and escapes are removed.
+
+## Types
+
+```ts
+type Node = TextNode | GroupNode;
+
+interface TextNode {
+  type: "text";
+  value: string;
+}
+
+interface GroupNode {
+  type: "group";
+  children: Node[];
+}
+```
+
+`Node`, `TextNode` and `GroupNode` are exported from `wordhug`.
+
+## Rendering the tree
+
+A renderer is a few lines. For example, to an HTML string with your own class:
+
+```ts
+import { parseBrackets, type Node } from "wordhug";
+
+const escape = (text: string) => text.replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+
+const render = (nodes: Node[]): string =>
+  nodes
+    .map((node) => (node.type === "text" ? escape(node.value) : `<span class="group">${render(node.children)}</span>`))
+    .join("");
+```
+
+For HTML, [`wordhugHtml`](/wordhug/guides/html/) already does this, with escaping.

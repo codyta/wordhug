@@ -1,0 +1,64 @@
+---
+title: Markdown
+description: wordhug/rehype lets writers use brackets in markdown, MDX and unified pipelines.
+---
+
+`wordhug/rehype` is a [rehype](https://github.com/rehypejs/rehype) plugin, for markdown and anything else that goes through unified, such as Astro's markdown, MDX and many CMS pipelines. Writers put brackets in their markdown and groups come out in the HTML.
+
+```ts
+import rehypeStringify from "rehype-stringify";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import { unified } from "unified";
+import rehypeWordhug from "wordhug/rehype";
+
+const html = String(
+  await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeWordhug, { class: "nowrap" })
+    .use(rehypeStringify)
+    .process("Fresh bread [delivered daily] to [your door]"),
+);
+```
+
+## In Astro, MDX and Next.js
+
+Add it to the rehype plugins of your markdown setup:
+
+```js
+// astro.config.mjs
+import rehypeWordhug from "wordhug/rehype";
+
+export default { markdown: { rehypePlugins: [rehypeWordhug] } };
+```
+
+Astro 7 renders markdown with its new default processor, which doesn't run rehype plugins. Install `@astrojs/markdown-remark` so `rehypePlugins` work:
+
+```bash
+npm install @astrojs/markdown-remark
+```
+
+```js
+// @next/mdx, @mdx-js/mdx and most other MDX setups
+import rehypeWordhug from "wordhug/rehype";
+
+const options = { rehypePlugins: [rehypeWordhug] };
+```
+
+## Options
+
+The same as [`wordhugHtml`](/wordhug/guides/html/): `as` (tag name), `class` and `style`.
+
+## What gets read
+
+The plugin runs after markdown is parsed, so markdown's own brackets are already handled and only the brackets left in the text become groups:
+
+- **Left alone:** links like `[text](url)`, references with a definition, footnotes and task list boxes.
+- **Formatting inside groups:** a group can contain `**bold**`, `*italic*` and other inline formatting, but can't start in one element and end in another.
+- **Code is never read:** code spans, code blocks, `<pre>`, `<script>` and `<style>`.
+- **Nothing else changes:** text without groups is left exactly as it was.
+
+## Literal brackets
+
+Markdown removes a backslash before a bracket, so for a literal bracket write two backslashes: `\\[sic\\]` renders `[sic]`.

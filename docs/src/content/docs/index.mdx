@@ -1,0 +1,52 @@
+---
+title: wordhug
+description: Keep phrases together on one line. Put square brackets around a phrase and it moves to the next line as one unit.
+template: splash
+hero:
+  tagline: Put square brackets around a phrase that belongs together, and it moves to the next line as one unit instead of breaking in the middle. React, Vue, Solid, Svelte, Astro, markdown and plain HTML.
+  actions:
+    - text: Get started
+      link: /wordhug/getting-started/
+      icon: right-arrow
+    - text: Why wordhug
+      link: /wordhug/why/
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import WordHug from "wordhug/astro";
+import Demo from "../../components/Demo.astro";
+import Plain from "../../components/Plain.astro";
+
+export const text = "Mẹo chọn đồ giúp bạn [ăn mặc] đẹp hơn mỗi ngày";
+
+<div class="demo-row">
+  <Demo label="Without wordhug" width={22}>
+    <p><Plain text={text} /></p>
+  </Demo>
+  <Demo label="With wordhug" width={22}>
+    <p><WordHug text={text} /></p>
+  </Demo>
+</div>
+
+Drag the corner of either box. Without wordhug, the Vietnamese word *ăn mặc* (to dress) can be split across two lines, leaving *ăn* (to eat) on its own: the heading then reads "tips to help you eat". With brackets around it, *ăn mặc* always stays together.
+
+```tsx
+<WordHug>{"Mẹo chọn đồ giúp bạn [ăn mặc] đẹp hơn mỗi ngày"}</WordHug>
+// → Mẹo chọn đồ giúp bạn <span style="display: inline-block">ăn mặc</span> đẹp hơn mỗi ngày
+```
+
+<CardGrid>
+  <Card title="Every framework" icon="puzzle">
+    The same brackets and the same output in [React](/wordhug/frameworks/react/), [Vue](/wordhug/frameworks/vue/), [Solid](/wordhug/frameworks/solid/), [Svelte](/wordhug/frameworks/svelte/) and [Astro](/wordhug/frameworks/astro/).
+  </Card>
+  <Card title="Markdown and HTML" icon="document">
+    A [rehype plugin](/wordhug/guides/markdown/) for markdown and MDX, and [an HTML string](/wordhug/guides/html/) for everything else.
+  </Card>
+  <Card title="No dependencies" icon="seti:json">
+    No runtime dependencies, no client JavaScript needed, and it works in React Server Components.
+  </Card>
+  <Card title="Writes like text" icon="pencil">
+    Writers mark what belongs together; the text still wraps naturally at every width, with `text-wrap: balance` too.
+  </Card>
+</CardGrid>
