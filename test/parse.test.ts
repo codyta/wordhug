@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseBrackets, type Node } from "../src/parse";
+import { parseBrackets, parseParts, type Node } from "../src/parse";
 
 const t = (value: string): Node => ({ type: "text", value });
 const g = (...children: Node[]): Node => ({ type: "group", children });
@@ -88,5 +88,42 @@ describe("parseBrackets", () => {
       node = node.children[0];
     }
     expect(node).toEqual(g(t("x")));
+  });
+});
+
+describe("parseParts", () => {
+  const item = { id: 1 };
+
+  it("keeps non-string parts whole and in place", () => {
+    expect(parseParts(["Buy ", item, " [only ", item, " today]"])).toEqual([
+      { type: "text", value: "Buy " },
+      { type: "item", value: item },
+      { type: "text", value: " " },
+      {
+        type: "group",
+        children: [
+          { type: "text", value: "only " },
+          { type: "item", value: item },
+          { type: "text", value: " today" },
+        ],
+      },
+    ]);
+  });
+
+  it("joins strings across parts before matching brackets", () => {
+    expect(parseParts(["a [b", " c]"])).toEqual(parseBrackets("a [b c]"));
+  });
+
+  it("trims whitespace only next to group and text edges, not items", () => {
+    expect(parseParts(["  [ ", item, " ]  "])).toEqual([
+      { type: "group", children: [{ type: "item", value: item }] },
+    ]);
+  });
+
+  it("is not confused by the placeholder character in text", () => {
+    expect(parseParts(["\uFFFC [", item, "]"])).toEqual([
+      { type: "text", value: "\uFFFC " },
+      { type: "group", children: [{ type: "item", value: item }] },
+    ]);
   });
 });

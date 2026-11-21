@@ -2,6 +2,7 @@ import {
   defineComponent,
   Fragment,
   h,
+  Comment,
   Text,
   type Component,
   type HTMLAttributes,
@@ -10,7 +11,7 @@ import {
   type VNode,
   type VNodeChild,
 } from "vue";
-import { parseBrackets, type Node } from "./parse";
+import { parseParts, type MixedNode } from "./parse";
 
 export interface WordHugOptions {
   /** Element or component used to wrap each group. Defaults to `"span"`. */
@@ -27,7 +28,7 @@ export interface WordHugOptions {
 const DEFAULT_STYLE: StyleValue = { display: "inline-block" };
 
 /**
- * Render the default slot's text so that every `[bracketed phrase]` is wrapped
+ * Render the default slot so that every `[bracketed phrase]` is wrapped
  * in an element (an inline-block span by default) that moves to the next line
  * as one unit. `class` and `style` go on each group wrapper; `style` defaults
  * to `display: inline-block`, and `:style="null"` removes it.
@@ -41,7 +42,7 @@ export const WordHug = defineComponent({
   },
   setup(props, { slots, attrs }) {
     return () =>
-      wordhug(slotText(slots.default?.()), {
+      render(slotParts(slots.default?.()), {
         as: props.as,
         class: attrs.class as WordHugOptions["class"],
         style: "style" in attrs ? (attrs.style as StyleValue | null) : undefined,
@@ -57,30 +58,42 @@ export const WordHug = defineComponent({
  */
 export function wordhug(
   text: string | null | undefined,
+  options?: WordHugOptions,
+): VNode | null {
+  return text ? render([text], options) : null;
+}
+
+function render(
+  parts: (string | VNode)[],
   { as = "span", class: className, style = DEFAULT_STYLE }: WordHugOptions = {},
 ): VNode | null {
-  if (!text) return null;
-
   const groupProps: Record<string, unknown> = {};
   if (className != null) groupProps.class = className;
   if (style != null) groupProps.style = style;
 
-  const render = (nodes: Node[]): VNodeChild[] =>
-    nodes.map((node) =>
-      node.type === "text"
-        ? node.value
-        : h(as as string, groupProps, { default: () => render(node.children) }),
-    );
+  const renderNodes = (nodes: MixedNode<VNode>[]): VNodeChild[] =>
+    nodes.map((node) => {
+      if (node.type === "text") return node.value;
+      if (node.type === "item") return node.value;
+      return h(as as string, groupProps, { default: () => renderNodes(node.children) });
+    });
 
-  return h(Fragment, render(parseBrackets(text)));
+  const nodes = parseParts(parts);
+  return nodes.length > 0 ? h(Fragment, renderNodes(nodes)) : null;
 }
 
-/** Concatenate the plain text in a slot. Elements and components are ignored. */
-function slotText(vnodes: VNode[] | undefined): string {
-  let text = "";
+/**
+ * Flatten slot vnodes into strings (from text vnodes) and other vnodes, looking
+ * inside fragments such as `v-for` lists. Comments (from `v-if`) are dropped;
+ * elements and components are kept as they are.
+ */
+function slotParts(vnodes: VNode[] | undefined, out: (string | VNode)[] = []): (string | VNode)[] {
   for (const vnode of vnodes ?? []) {
-    if (vnode.type === Text && typeof vnode.children === "string") text += vnode.children;
-    else if (Array.isArray(vnode.children)) text += slotText(vnode.children as VNode[]);
+    if (vnode.type === Comment) continue;
+    if (vnode.type === Text) out.push(String(vnode.children ?? ""));
+    else if (vnode.type === Fragment && Array.isArray(vnode.children)) {
+      slotParts(vnode.children as VNode[], out);
+    } else out.push(vnode);
   }
-  return text;
+  return out;
 }
