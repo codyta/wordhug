@@ -1,6 +1,6 @@
 # wordhug
 
-Keep phrases together on one line. Put square brackets around a phrase and it is wrapped in an inline-block element, so it moves to the next line as one unit instead of breaking in the middle. Works with React, Vue, Solid, Svelte and Astro, or as a plain HTML string.
+Keep phrases together on one line. Put square brackets around a phrase and it is wrapped in an inline-block element, so it moves to the next line as one unit instead of breaking in the middle. Works with React, Vue, Solid, Svelte and Astro, in markdown, or as a plain HTML string.
 
 ```tsx
 <WordHug>{"Hello [big world] today"}</WordHug>
@@ -57,6 +57,7 @@ Each framework is an optional peer dependency; install only the one you use.
 | Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
 | Astro     | `wordhug/astro`  | –                             | `text` prop    |
 | None      | `wordhug`        | –                             | `wordhugHtml` |
+| Markdown  | `wordhug/rehype` | –                             | markdown text |
 
 ### Upgrading from 0.1
 
@@ -192,6 +193,41 @@ Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attrib
 
 This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.
 
+### Markdown: `wordhug/rehype`
+
+A [rehype](https://github.com/rehypejs/rehype) plugin, for markdown and anything else that goes through unified, such as Astro's markdown, MDX and many CMS pipelines. Writers put brackets in their markdown and groups come out in the HTML.
+
+```ts
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeWordhug from "wordhug/rehype";
+
+const html = String(
+  await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeWordhug, { class: "nowrap" })
+    .use(rehypeStringify)
+    .process("Fresh bread [delivered daily] to [your door]"),
+);
+```
+
+In Astro, add it to `markdown.rehypePlugins` in `astro.config.mjs`:
+
+```js
+import rehypeWordhug from "wordhug/rehype";
+
+export default { markdown: { rehypePlugins: [rehypeWordhug] } };
+```
+
+Options are `as` (tag name), `class` and `style`, as for `wordhugHtml`.
+
+The plugin runs after markdown is parsed, so links (`[text](url)`), references with a definition, footnotes and task list boxes are already handled; only brackets left in the text become groups. A group can contain inline formatting such as `**bold**` or `*italic*`, but can't start in one element and end in another. Code spans, code blocks and `<pre>`, `<script>` and `<style>` are left alone, and text without groups is left exactly as it was.
+
+Markdown removes a backslash before a bracket, so for a literal bracket write two backslashes: `\\[sic\\]` renders `[sic]`.
+
 ### Styling
 
 Groups work without any stylesheet: each wrapper gets `display: inline-block` inline. To use a class instead (for example Tailwind's `inline-block` or `whitespace-nowrap`), pass a class and a `null` style.
@@ -224,7 +260,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`, `wordhug/vue` and `wordhug/solid`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`, and `RehypeWordhugOptions` from `wordhug/rehype`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`, `wordhug/vue` and `wordhug/solid`.
 
 ## Development
 
