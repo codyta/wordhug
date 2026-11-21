@@ -21,16 +21,10 @@ const TAG_NAME = /^[a-zA-Z][a-zA-Z0-9-]*$/;
  */
 export function wordhugHtml(
   text: string | null | undefined,
-  { as = "span", class: className, style = "display: inline-block" }: WordhugHtmlOptions = {},
+  options: WordhugHtmlOptions = {},
 ): string {
   if (!text) return "";
-  if (!TAG_NAME.test(as)) throw new TypeError(`wordhug: invalid tag name ${JSON.stringify(as)}`);
-
-  let attrs = "";
-  if (className) attrs += ` class="${escapeHtml(className)}"`;
-  if (style) attrs += ` style="${escapeHtml(style)}"`;
-  const open = `<${as}${attrs}>`;
-  const close = `</${as}>`;
+  const { open, close } = groupTags(options);
 
   const render = (nodes: Node[]): string =>
     nodes
@@ -40,6 +34,19 @@ export function wordhugHtml(
       .join("");
 
   return render(parseBrackets(text));
+}
+
+/** The opening and closing tags of a group wrapper. Internal, shared with `wordhugMarkup`. */
+export function groupTags({
+  as = "span",
+  class: className,
+  style = "display: inline-block",
+}: WordhugHtmlOptions): { open: string; close: string } {
+  if (!TAG_NAME.test(as)) throw new TypeError(`wordhug: invalid tag name ${JSON.stringify(as)}`);
+  let attrs = "";
+  if (className) attrs += ` class="${escapeHtml(className)}"`;
+  if (style) attrs += ` style="${escapeHtml(style)}"`;
+  return { open: `<${as}${attrs}>`, close: `</${as}>` };
 }
 
 const HTML_ESCAPES: Record<string, string> = {

@@ -1,11 +1,12 @@
 ---
-// Renders `text` so that every [bracketed phrase] is wrapped in an element
-// (an inline-block span by default) that moves to the next line as one unit.
-import { wordhugHtml } from "wordhug";
+// Renders `text`, or the children when there is no `text`, so that every
+// [bracketed phrase] is wrapped in an element (an inline-block span by default)
+// that moves to the next line as one unit.
+import { wordhugHtml, wordhugMarkup } from "wordhug";
 
 export interface Props {
-  /** Text to render. `[...]` groups are kept together on one line. */
-  text: string | null | undefined;
+  /** Text to render. `[...]` groups are kept together on one line. Without it, the children are rendered. */
+  text?: string | null | undefined;
   /** Tag name used to wrap each group. Defaults to `"span"`. */
   as?: string;
   /** Class for each group wrapper. */
@@ -15,6 +16,16 @@ export interface Props {
 }
 
 const { text, as, class: className, style } = Astro.props;
+const options = { as, class: className, style };
+
+// Astro hands over children only as rendered HTML, so they are read with
+// `wordhugMarkup`, which finds brackets in the text and leaves the markup alone.
+const html =
+  text != null
+    ? wordhugHtml(text, options)
+    : Astro.slots.has("default")
+      ? wordhugMarkup(await Astro.slots.render("default"), options)
+      : "";
 ---
 
-<Fragment set:html={wordhugHtml(text, { as, class: className, style })} />
+<Fragment set:html={html} />
