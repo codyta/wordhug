@@ -1,5 +1,40 @@
 # wordhug
 
+## 0.5.0
+
+### Minor Changes
+
+- 755a9fd: The Astro `WordHug` reads its children when there is no `text` prop, and a new `wordhugMarkup` function groups brackets in any HTML string.
+  
+  ```astro
+  <h1><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></h1>
+  <p><WordHug class="nowrap">Buy [only <strong>{price}</strong> today]</WordHug></p>
+  ```
+  
+  - Elements and `{expressions}` in the children stay where they are, and a group can contain them. Brackets inside an element are read within that element only.
+  - Code, `<pre>`, `<script>`, `<style>` and hydrated islands (`<astro-island>`) are left alone, so islands still hydrate.
+  - The `text` prop still works and wins when both are given.
+  - `wordhugMarkup(html, options)`, exported from `wordhug`, does the same for HTML you already have, such as HTML from a CMS: brackets are read in the text only, and tags, attributes, comments and entities are kept as they are. Its input isn't escaped or sanitized, so only pass HTML you trust; for plain text, keep using `wordhugHtml`, which escapes.
+  
+  Docs: https://codyta.github.io/wordhug/frameworks/astro/
+- a6ef1c7: Add `wordhug/rehype`, a rehype plugin so writers can use brackets in markdown and MDX.
+  
+  ```js
+  // astro.config.mjs
+  import rehypeWordhug from "wordhug/rehype";
+  
+  export default { markdown: { rehypePlugins: [rehypeWordhug] } };
+  ```
+  
+  - Works in any unified pipeline: Astro's markdown and MDX, `@next/mdx`, `@mdx-js/mdx` and many CMS pipelines.
+  - Runs after markdown is parsed, so links (`[text](url)`), references, footnotes and task list boxes are left alone; only brackets left in the text become groups.
+  - A group can contain inline formatting such as `**bold**`. Code spans, code blocks, `<pre>`, `<script>` and `<style>` are never read, and text without groups is left exactly as it was.
+  - Takes the same `as`, `class` and `style` options as `wordhugHtml`.
+  - Markdown removes one backslash before a bracket, so write `\\[sic\\]` for a literal bracket.
+  - On Astro 7, also install `@astrojs/markdown-remark`: Astro's new default markdown processor doesn't run rehype plugins.
+  
+  Docs: https://codyta.github.io/wordhug/guides/markdown/
+
 ## 0.4.0
 
 ### Minor Changes
