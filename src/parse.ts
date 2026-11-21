@@ -10,6 +10,21 @@ export interface GroupNode {
 
 export type Node = TextNode | GroupNode;
 
+/** Something other than text, such as a framework element, kept whole and in place. */
+export interface ItemNode<T> {
+  type: "item";
+  value: T;
+}
+
+/** A group whose children can include items. */
+export interface MixedGroupNode<T> {
+  type: "group";
+  children: MixedNode<T>[];
+}
+
+/** A node from {@link parseParts}: text, a group, or an item passed through untouched. */
+export type MixedNode<T> = TextNode | ItemNode<T> | MixedGroupNode<T>;
+
 const WHITESPACE = /[ \t\n\r\f\v]+/g;
 
 /**
@@ -26,9 +41,32 @@ const WHITESPACE = /[ \t\n\r\f\v]+/g;
  *   the backslash is removed. A backslash before anything else is kept as is.
  */
 export function parseBrackets(input: string): Node[] {
+  return parseParts<never>([input]) as Node[];
+}
+
+/**
+ * Like {@link parseBrackets}, for text with other things mixed in, such as
+ * elements. Strings are joined and parsed as one text; every other part is
+ * kept whole as an `item` node at its place, so a group can contain it but
+ * brackets inside it are not read. Whitespace is collapsed and trimmed within
+ * text only, so the space between a word and an item is kept.
+ */
+export function parseParts<T>(parts: readonly (string | T)[]): MixedNode<T>[] {
+  // Each item stands in the joined text as one placeholder character. Items are
+  // found by position, not by that character, so text containing it is safe.
+  let input = "";
+  const items = new Map<number, T>();
+  for (const part of parts) {
+    if (typeof part === "string") input += part;
+    else {
+      items.set(input.length, part);
+      input += "\uFFFC";
+    }
+  }
+
   const pairs = matchBrackets(input);
   // An explicit stack instead of recursion, so deep nesting can't overflow the call stack.
-  const stack: { nodes: Node[]; end: number }[] = [{ nodes: [], end: -1 }];
+  const stack: { nodes: MixedNode<T>[]; end: number }[] = [{ nodes: [], end: -1 }];
   let start = 0;
 
   for (let i = 0; i < input.length; i++) {
@@ -37,6 +75,12 @@ export function parseBrackets(input: string): Node[] {
       pushText(top.nodes, input.slice(start, i));
       stack.pop();
       stack[stack.length - 1]!.nodes.push({ type: "group", children: normalize(top.nodes) });
+      start = i + 1;
+      continue;
+    }
+    if (items.has(i)) {
+      pushText(top.nodes, input.slice(start, i));
+      top.nodes.push({ type: "item", value: items.get(i)! });
       start = i + 1;
       continue;
     }
@@ -55,7 +99,7 @@ export function parseBrackets(input: string): Node[] {
 
 const ESCAPED_BRACKET = /\\([[\]])/g;
 
-function pushText(nodes: Node[], value: string): void {
+function pushText<T>(nodes: MixedNode<T>[], value: string): void {
   if (value) nodes.push({ type: "text", value: value.replace(ESCAPED_BRACKET, "$1") });
 }
 
@@ -74,11 +118,15 @@ function matchBrackets(input: string): Map<number, number> {
   return pairs;
 }
 
-function normalize(nodes: Node[]): Node[] {
-  const out: Node[] = [];
+function normalize<T>(nodes: MixedNode<T>[]): MixedNode<T>[] {
+  const out: MixedNode<T>[] = [];
   for (const node of nodes) {
     if (node.type === "group") {
       if (node.children.length > 0) out.push(node);
+      continue;
+    }
+    if (node.type === "item") {
+      out.push(node);
       continue;
     }
     const last = out[out.length - 1];
@@ -94,5 +142,5 @@ function normalize(nodes: Node[]): Node[] {
   const last = out[out.length - 1];
   if (last?.type === "text") last.value = last.value.trimEnd();
 
-  return out.filter((node) => node.type === "group" || node.value !== "");
+  return out.filter((node) => node.type !== "text" || node.value !== "");
 }

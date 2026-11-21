@@ -6,7 +6,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { parseBrackets, type Node } from "./parse";
+import { parseParts, type MixedNode } from "./parse";
 
 export interface WordHugOptions {
   /** Element used to wrap each group. Defaults to `"span"`. */
@@ -25,7 +25,8 @@ export interface WordHugProps extends WordHugOptions {
   /**
    * Text to render. `[...]` groups are kept together on one line. Strings and
    * numbers are joined into one text, including inside arrays and fragments, so
-   * `Hello [{name}]` works. Other elements are ignored.
+   * `Hello [{name}]` works. Elements are kept as they are, each as one unit that
+   * a group can contain; brackets inside an element are not read.
    */
   children?: ReactNode;
 }
@@ -50,33 +51,36 @@ export function wordhug(
   input: ReactNode,
   { as: Tag = "span", className, style = DEFAULT_STYLE }: WordHugOptions = {},
 ): ReactNode {
-  const text = childrenText(input);
-  if (!text) return null;
+  const parts = childrenParts(input);
+  if (parts.length === 0) return null;
 
-  const renderNodes = (nodes: Node[]): ReactNode[] =>
-    nodes.map((node, i) =>
-      node.type === "text" ? (
-        node.value
-      ) : (
+  const renderNodes = (nodes: MixedNode<ReactNode>[]): ReactNode[] =>
+    nodes.map((node, i) => {
+      if (node.type === "text") return node.value;
+      if (node.type === "item") return <Fragment key={i}>{node.value}</Fragment>;
+      return (
         <Tag key={i} className={className} style={style ?? undefined}>
           {renderNodes(node.children)}
         </Tag>
-      ),
-    );
+      );
+    });
 
-  return <>{renderNodes(parseBrackets(text))}</>;
+  const nodes = parseParts(parts);
+  return nodes.length > 0 ? <>{renderNodes(nodes)}</> : null;
 }
 
 /**
- * Join the strings and numbers in React children into one text, looking inside
- * arrays and fragments. Other elements, booleans, `null` and `undefined` add nothing.
+ * Flatten React children into strings and other nodes, looking inside arrays and
+ * fragments. Numbers become strings; booleans, `null` and `undefined` are dropped;
+ * elements and anything else React can render are kept as they are.
  */
-function childrenText(node: ReactNode): string {
-  if (typeof node === "string") return node;
-  if (typeof node === "number" || typeof node === "bigint") return String(node);
-  if (Array.isArray(node)) return node.map(childrenText).join("");
-  if (isValidElement(node) && node.type === Fragment) {
-    return childrenText((node as ReactElement<{ children?: ReactNode }>).props.children);
-  }
-  return "";
+function childrenParts(node: ReactNode, out: (string | ReactNode)[] = []): (string | ReactNode)[] {
+  if (node == null || typeof node === "boolean") return out;
+  if (typeof node === "string") out.push(node);
+  else if (typeof node === "number" || typeof node === "bigint") out.push(String(node));
+  else if (Array.isArray(node)) for (const child of node) childrenParts(child, out);
+  else if (isValidElement(node) && node.type === Fragment) {
+    childrenParts((node as ReactElement<{ children?: ReactNode }>).props.children, out);
+  } else out.push(node);
+  return out;
 }

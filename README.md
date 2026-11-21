@@ -89,15 +89,16 @@ export function Hero() {
 
 | Prop        | Type                          | Default                       | Description                          |
 | ----------- | ----------------------------- | ----------------------------- | ------------------------------------ |
-| `children`  | `React.ReactNode`             | –                             | Text to render (see below). Empty input renders nothing. |
+| `children`  | `React.ReactNode`             | –                             | Text and elements to render (see below). Empty input renders nothing. |
 | `as`        | `React.ElementType`           | `"span"`                      | Element that wraps each group.       |
 | `className` | `string`                      | –                             | Class name on each group wrapper.    |
 | `style`     | `CSSProperties \| null`       | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
 
-Children are read as text: strings and numbers are joined, including inside arrays and fragments, so JSX expressions work inside brackets. Other elements are ignored, so put formatting on the groups through `as` or `className` instead.
+Strings and numbers in the children are joined into one text, including inside arrays and fragments, so JSX expressions work inside brackets. Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
 
 ```tsx
 <WordHug>Hello [{user.name}], you have [{count} new messages]</WordHug>
+<WordHug>Fresh bread for [only <strong>$3</strong> a loaf]</WordHug>
 ```
 
 #### `wordhug()`
@@ -123,7 +124,7 @@ import { WordHug } from "wordhug/vue";
 </template>
 ```
 
-The text comes from the default slot (plain text and `{{ }}` interpolations; elements in the slot are ignored). `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
+The text comes from the default slot: plain text and `{{ }}` interpolations are joined into one text, and elements and components stay where they are, each as one unit a group can contain. Brackets inside an element are not read. `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
 
 `wordhug(text, options)` returns the same output as a VNode, for render functions, Vue JSX or anything that expects a VNode. Options are `as`, `class` and `style`, as for the component:
 

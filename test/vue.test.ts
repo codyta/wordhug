@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createSSRApp, h } from "vue";
+import { createCommentVNode, createSSRApp, Fragment, h } from "vue";
 import { renderToString } from "vue/server-renderer";
 import { WordHug, wordhug } from "../src/vue";
 
@@ -21,6 +21,31 @@ describe("Vue WordHug", () => {
 
   it("renders nothing for an empty slot", async () => {
     expect(await ssr({}, "")).toBe("<!---->");
+  });
+
+  const ssrSlot = (slot: () => unknown[]) =>
+    renderToString(createSSRApp({ render: () => h(WordHug, null, slot) }));
+
+  it("keeps elements in place, inside and outside groups", async () => {
+    expect(
+      await ssrSlot(() => ["Buy ", h("b", "now"), " for [only ", h("em", "$9"), " today]"]),
+    ).toBe(
+      '<!--[-->Buy <b>now</b> for <span style="display:inline-block;">only <em>$9</em> today</span><!--]-->',
+    );
+  });
+
+  it("does not read brackets inside elements", async () => {
+    expect(await ssrSlot(() => [h("b", ["[not ", "a group]"]), " [a group]"])).toBe(
+      '<!--[--><b>[not a group]</b> <span style="display:inline-block;">a group</span><!--]-->',
+    );
+  });
+
+  it("reads text inside fragments and drops comments", async () => {
+    expect(
+      await ssrSlot(() => [h(Fragment, ["a [b", " c]"]), createCommentVNode("v-if"), " [d]"]),
+    ).toBe(
+      '<!--[-->a <span style="display:inline-block;">b c</span> <span style="display:inline-block;">d</span><!--]-->',
+    );
   });
 
 });

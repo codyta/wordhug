@@ -1,5 +1,5 @@
 import { cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
 import { WordHug, wordhug } from "../src/react";
 
@@ -91,10 +91,10 @@ describe("WordHug", () => {
     );
   });
 
-  it("ignores elements, booleans and null in children", () => {
+  it("drops booleans and null in children", () => {
     const { container } = render(
       <WordHug>
-        Buy <b>[now]</b>
+        Buy
         {false}
         {null} [today]
       </WordHug>,
@@ -102,13 +102,49 @@ describe("WordHug", () => {
     expect(container.innerHTML).toBe('Buy <span style="display: inline-block;">today</span>');
   });
 
-  it("renders nothing when the children hold no text", () => {
+  it("keeps elements in place, inside and outside groups", () => {
+    const { container } = render(
+      <WordHug>
+        Buy <b>now</b> for [only <em>$9</em> today]
+      </WordHug>,
+    );
+    expect(container.innerHTML).toBe(
+      'Buy <b>now</b> for <span style="display: inline-block;">only <em>$9</em> today</span>',
+    );
+  });
+
+  it("does not read brackets inside elements", () => {
+    const { container } = render(
+      <WordHug>
+        <b>[not a group]</b> [a group]
+      </WordHug>,
+    );
+    expect(container.innerHTML).toBe(
+      '<b>[not a group]</b> <span style="display: inline-block;">a group</span>',
+    );
+  });
+
+  it("renders children that are only an element", () => {
     const { container } = render(
       <WordHug>
         <b>only an element</b>
       </WordHug>,
     );
-    expect(container.innerHTML).toBe("");
+    expect(container.innerHTML).toBe("<b>only an element</b>");
+  });
+
+  it("gives kept elements keys, so React does not warn", () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(
+      <WordHug>
+        {"[a "}
+        <b>b</b>
+        {" c] "}
+        <i>d</i>
+      </WordHug>,
+    );
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
   });
 });
 
@@ -134,6 +170,6 @@ describe("wordhug", () => {
   });
 
   it("returns null for empty input", () => {
-    for (const value of [null, undefined, "", false, <b key="b">x</b>]) expect(wordhug(value)).toBeNull();
+    for (const value of [null, undefined, "", false, " ", "[]"]) expect(wordhug(value)).toBeNull();
   });
 });
