@@ -11,11 +11,11 @@ import Demo from "../../../components/Demo.astro";
 import WordHug from "wordhug/astro";
 ---
 
-<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+<h1><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></h1>
 ```
 
 <Demo label="Astro" width={18}>
-  <p><WordHug text="Fresh bread [delivered daily] to [your door]" /></p>
+  <p><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></p>
 </Demo>
 
 The component renders static HTML with no client JavaScript.
@@ -24,10 +24,23 @@ The component renders static HTML with no client JavaScript.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `text` | `string` | – | Text to render. Empty input renders nothing. |
+| children | text and elements | – | What to render, when there is no `text`. |
+| `text` | `string` | – | Text to render instead of the children. Wins when both are given. Empty input renders nothing. |
 | `as` | tag name | `"span"` | Element that wraps each group. |
 | `class` | `string` | – | Class on each group wrapper. |
 | `style` | `string \| null` | `"display: inline-block"` | Style attribute on each group wrapper. `null` removes it. |
+
+## Children
+
+Elements and `{expressions}` in the children stay where they are, and a group can contain them:
+
+```astro
+<p><WordHug class="nowrap">Buy [only <strong>{price}</strong> today]</WordHug></p>
+```
+
+Astro hands children to a component as rendered HTML, so they are read with [`wordhugMarkup`](/wordhug/guides/html/#html-you-already-have-wordhugmarkup): brackets are read in the text only, and brackets inside an element are read within that element. Code, `<pre>`, `<script>`, `<style>` and hydrated islands are left alone, so islands still hydrate.
+
+Use `text` when the text comes from a variable: `<WordHug text={post.title} />`.
 
 ## Markdown and MDX
 
