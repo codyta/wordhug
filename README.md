@@ -55,7 +55,7 @@ Each framework is an optional peer dependency; install only the one you use.
 | Vue       | `wordhug/vue`    | `vue` 3.3+                    | default slot   |
 | Solid     | `wordhug/solid`  | `solid-js` and `@solidjs/web` 2+ | `children`  |
 | Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
-| Astro     | `wordhug/astro`  | –                             | `text` prop    |
+| Astro     | `wordhug/astro`  | –                             | children or `text` prop |
 | None      | `wordhug`        | –                             | `wordhugHtml` |
 | Markdown  | `wordhug/rehype` | –                             | markdown text |
 
@@ -175,10 +175,13 @@ Props: `text` (string), `as` (tag name, default `"span"`), `class`, and `style` 
 import WordHug from "wordhug/astro";
 ---
 
-<h1><WordHug text="Fresh bread [delivered daily] to [your door]" /></h1>
+<h1><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></h1>
+<h2><WordHug text={title} /></h2>
 ```
 
-Same props as Svelte: `text`, `as`, `class`, `style`. Renders static HTML with no client JavaScript.
+The text comes from the children, or from the `text` prop, which wins when both are given. Other props are the same as Svelte: `as`, `class`, `style`. Renders static HTML with no client JavaScript.
+
+Astro hands children to a component as rendered HTML, so they are read with [`wordhugMarkup`](#html-you-already-have-wordhugmarkup): elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. Brackets inside an element are read within that element only, and code, `<pre>` and hydrated islands are left alone.
 
 ### Plain HTML: `wordhugHtml`
 
@@ -192,6 +195,19 @@ wordhugHtml("Fish & [chips]", { class: "nowrap" });
 Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attributes are HTML-escaped, so the result is safe to insert with `innerHTML`.
 
 This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.
+
+### HTML you already have: `wordhugMarkup`
+
+The same for input that is already HTML, such as HTML from a CMS. Brackets are read in the text only; tags, attributes, comments and entities are kept as they are, so `&#91;` is another way to write a literal bracket. A group can contain inline elements, but can't start in one element and end in another, and text in elements without groups is left unchanged. `<code>`, `<pre>`, `<kbd>`, `<samp>`, `<script>`, `<style>`, `<textarea>`, `<title>`, `<svg>`, `<math>`, `<template>` and `<astro-island>` are left alone.
+
+```ts
+import { wordhugMarkup } from "wordhug";
+
+wordhugMarkup("<p>Buy [only <strong>$9</strong> today]</p>");
+// → '<p>Buy <span style="display: inline-block">only <strong>$9</strong> today</span></p>'
+```
+
+Options are the same as `wordhugHtml`. The input is not escaped or sanitized, so only pass HTML you trust.
 
 ### Markdown: `wordhug/rehype`
 
