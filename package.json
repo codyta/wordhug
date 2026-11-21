@@ -1,7 +1,7 @@
 {
   "name": "wordhug",
   "version": "0.4.0",
-  "description": "Keep [bracketed phrases] together on one line in React, Vue, Solid, Svelte and Astro by wrapping them in inline-block spans.",
+  "description": "Keep [bracketed phrases] together on one line in React, Vue, Solid, Svelte, Astro and markdown by wrapping them in inline-block spans.",
   "license": "MIT",
   "author": "Cody Ta",
   "repository": {
@@ -33,6 +33,9 @@
       ],
       "svelte": [
         "./dist/svelte/index.d.ts"
+      ],
+      "rehype": [
+        "./dist/rehype.d.ts"
       ]
     }
   },
@@ -82,6 +85,16 @@
       "svelte": "./dist/svelte/index.js",
       "default": "./dist/svelte/index.js"
     },
+    "./rehype": {
+      "import": {
+        "types": "./dist/rehype.d.ts",
+        "default": "./dist/rehype.js"
+      },
+      "require": {
+        "types": "./dist/rehype.d.cts",
+        "default": "./dist/rehype.cjs"
+      }
+    },
     "./astro": "./dist/astro/WordHug.astro",
     "./package.json": "./package.json"
   },
@@ -91,6 +104,9 @@
     "solid",
     "svelte",
     "astro",
+    "markdown",
+    "rehype",
+    "rehype-plugin",
     "text",
     "line-break",
     "no-wrap",
@@ -151,10 +167,15 @@
     "publint": "^0.3.25",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "solid-js": "^2.0.3",
     "svelte": "^5.58.0",
     "tsup": "^9.0.0",
     "typescript": "^6.0.3",
+    "unified": "^11.0.5",
     "vitest": "^5.1.1",
     "vue": "^3.5.45"
   }

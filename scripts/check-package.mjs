@@ -11,6 +11,7 @@ const expected = {
   "./react": ["WordHug", "wordhug"],
   "./vue": ["WordHug", "wordhug"],
   "./solid": ["WordHug", "wordhug"],
+  "./rehype": ["default", "rehypeWordhug"],
 };
 
 let failed = false;
