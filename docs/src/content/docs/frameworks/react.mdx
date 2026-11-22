@@ -29,6 +29,7 @@ export function Hero() {
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `children` | `React.ReactNode` | – | Text and elements to render. Empty input renders nothing. |
+| `text` | `string \| null` | – | Text to render instead of `children`. When it's given, even as `""`, `children` are ignored. |
 | `as` | `React.ElementType` | `"span"` | Element or component that wraps each group. |
 | `className` | `string` | – | Class name on each group wrapper. |
 | `style` | `CSSProperties \| null` | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |

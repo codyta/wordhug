@@ -27,6 +27,7 @@ Requires Vue 3.3 or later.
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | default slot | text and elements | – | What to render. |
+| `text` | `string \| null` | – | Text to render instead of the slot. When it's given, even as `""`, the slot is ignored. |
 | `as` | tag name or component | `"span"` | Element that wraps each group. |
 | `class` | any class value | – | Class on each group wrapper, not on a root element. |
 | `style` | any style value, or `null` | `display: inline-block` | Style on each group wrapper. `:style="null"` removes it. |
