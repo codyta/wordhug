@@ -1,5 +1,20 @@
 # wordhug
 
+## 0.6.0
+
+### Minor Changes
+
+- dba8c55: `wordhug/svelte` and `wordhug/astro` export a `wordhug(text, options)` function like the other framework entry points, returning an escaped HTML string for `{@html}` or `set:html`. `wordhug/astro` also exports the component by name as `WordHug`, as well as by default.
+- 130cd37: **Breaking:** `wordhugMarkup` is no longer exported from `wordhug`. Its input isn't escaped, and next to `wordhugHtml` it was easy to pick the wrong one. The Astro `WordHug` still reads its children the same way. For plain text, use `wordhugHtml`; for markdown, use `wordhug/rehype`.
+- 449d242: In markdown (`wordhug/rehype`) and Astro children, a group can now start in one formatting element and end in another, as in `**a [b** c]`: bold, italic and similar elements are split at the bracket so the group fits. When a link or another element that can't be split is in the way, the brackets stay as text and a warning is reported (a vfile message from rehype, a console warning in Astro development). Previously such brackets always stayed as text.
+- a92c66e: Add `wordhugRichText`, which finds groups in one paragraph of rich text stored as JSON, such as ProseMirror, TipTap, Lexical, Contentful or Sanity. A group can cover nodes with different formatting. Most formats need no options; `textField`, `keyField`, `isLink` and `createGroup` adapt it to the rest. Inline code is left alone and links are never cut in two.
+- d784f2b: Solid `WordHug` keeps elements in its children, as React and Vue do: `[only <strong>{price()}</strong> today]` groups the whole phrase with the element inside, instead of failing on anything that isn't a string.
+- bb2eef8: React, Vue and Solid `WordHug` accept a `text` prop as an alternative to children, as Svelte and Astro do. When `text` is given, the children are ignored.
+
+### Patch Changes
+
+- 9a96547: In markdown (`wordhug/rehype`) and Astro children, spaces at the edges of an inline element such as `<em>` or `<strong>` are kept, so `Read<em> [the guide] </em>now` no longer runs the words together. Whitespace outside groups is left as written; only a group's own edges are trimmed.
+
 ## 0.5.0
 
 ### Minor Changes

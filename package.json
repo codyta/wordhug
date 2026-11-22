@@ -1,6 +1,6 @@
 {
   "name": "wordhug",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Keep [bracketed phrases] together on one line in React, Vue, Solid, Svelte, Astro and markdown by wrapping them in inline-block spans.",
   "license": "MIT",
   "author": "Cody Ta",
