@@ -57,6 +57,7 @@ Each framework is an optional peer dependency; install only the one you use.
 | Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
 | Astro     | `wordhug/astro`  | –                             | children or `text` prop |
 | None      | `wordhug`        | –                             | `wordhugHtml` |
+| Rich text JSON | `wordhug`   | –                             | `wordhugRichText` |
 | Markdown  | `wordhug/rehype` | –                             | markdown text |
 
 ### Upgrading from 0.1
@@ -216,6 +217,103 @@ Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attrib
 
 This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.
 
+### Rich text JSON: `wordhugRichText`
+
+For rich text stored as JSON, such as ProseMirror, TipTap, Storyblok, Lexical, Payload, Strapi, Contentful or Sanity. These store a paragraph as a list of nodes, one for each change in formatting, plus nodes that aren't text, such as links or mentions:
+
+```
+"Mẹo chọn đồ giúp bạn "   none
+"[ăn mặc "                bold
+"đẹp]"                    bold + italic
+" hơn"                    none
+```
+
+`wordhugRichText` reads the text of all those nodes as one sentence, finds the groups, cuts the nodes at the brackets and puts each group's nodes in a group node. Every piece keeps its own formatting:
+
+```
+"Mẹo chọn đồ giúp bạn "   none
+group
+├── "ăn mặc "             bold
+└── "đẹp"                 bold + italic
+" hơn"                    none
+```
+
+It works on one paragraph at a time. For most formats there's nothing to configure:
+
+```ts
+import { wordhugRichText } from "wordhug";
+
+wordhugRichText(paragraph.content); // ProseMirror, TipTap, Storyblok, Lexical, Payload, Strapi
+wordhugRichText(paragraph.content, { textField: "value" }); // Contentful, DatoCMS
+wordhugRichText(block.children, { keyField: "_key" }); // Sanity
+```
+
+| Option | Default | What it's for |
+| --- | --- | --- |
+| `textField` | `"text"` | The field a text node keeps its text in. |
+| `keyField` | none | A field to keep unique, such as Sanity's `_key`. Cut pieces get `abc`, `abc-1`, `abc-2`, and groups get `wordhug-0`, `wordhug-1`. |
+| `isText(node)` | has a string in `textField` and isn't inline code | Which nodes are text. Other nodes, such as link nodes, mentions, images and inline code, are kept whole: a group can contain them, and brackets inside them are not read. Inline code is recognised by a `code` mark, `code: true` or Lexical's code format. |
+| `isLink(node)` | none | For formats that store links as marks (Sanity, Storyblok, TipTap): which text nodes are part of a link. A group that would cut a link in two keeps its brackets as text instead. |
+| `onWarning(message)` | none | Called when brackets are kept as text because of a link. |
+| `createGroup(children, { key, depth })` | `{ type: "group", children }` | What a group becomes. Return an array instead to keep the list flat, for example the same nodes with a mark named after `key`. |
+| `getText(node)` / `setText(node, text)` | read and write `textField` | For text that isn't in one field, such as Notion's `text.content`. |
+
+Whitespace is kept as written, except at a group's edges. A backslash escapes a bracket as in plain text, even when the backslash ends one node and the bracket starts the next: the backslash is removed and the bracket stays as text. Nodes that don't change are returned as they are, not copied, and a paragraph without groups comes back unchanged.
+
+#### Every paragraph in a document
+
+Call it for each paragraph, heading or list item in your own loop, since every format nests them differently:
+
+```ts
+// ProseMirror and TipTap JSON, including lists and quotes
+const hug = (node) =>
+  node.content?.some((child) => child.type === "text")
+    ? { ...node, content: wordhugRichText(node.content) }
+    : node.content
+      ? { ...node, content: node.content.map(hug) }
+      : node;
+
+// Sanity: every block of a Portable Text field
+const blocks = body.map((block) =>
+  block._type === "block" ? { ...block, children: wordhugRichText(block.children, { keyField: "_key" }) } : block,
+);
+```
+
+#### Drawing the groups
+
+Render a group as an inline-block element, the same way your renderer draws bold or italic:
+
+```tsx
+// Sanity, with @portabletext/react
+const children = wordhugRichText(block.children, {
+  keyField: "_key",
+  createGroup: (children) => ({ _type: "wordhug", children }),
+});
+const components = {
+  types: {
+    wordhug: ({ value }) => (
+      <span style={{ display: "inline-block" }}>
+        <PortableText value={{ _type: "block", _key: value._key, style: "normal", markDefs: block.markDefs, children: value.children }} />
+      </span>
+    ),
+  },
+};
+
+// Contentful, with @contentful/rich-text-react-renderer: a group is an inline node
+const content = wordhugRichText(paragraph.content, {
+  textField: "value",
+  createGroup: (content) => ({ nodeType: "wordhug", data: {}, content }),
+});
+// renderNode: { wordhug: (node, children) => <span style={{ display: "inline-block" }}>{children}</span> }
+
+// TipTap or ProseMirror: their schemas reject unknown nodes, so mark each group's text instead
+const content = wordhugRichText(paragraph.content, {
+  createGroup: (children, { key }) =>
+    children.map((node) => ({ ...node, marks: [...(node.marks ?? []), { type: "wordhug", attrs: { id: key } }] })),
+});
+// and add a "wordhug" mark to the schema that renders <span style="display: inline-block">
+```
+
 ### Markdown: `wordhug/rehype`
 
 A [rehype](https://github.com/rehypejs/rehype) plugin, for markdown and anything else that goes through unified, such as Astro's markdown, MDX and many CMS pipelines. Writers put brackets in their markdown and groups come out in the HTML.
@@ -285,7 +383,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`, and `RehypeWordhugOptions` from `wordhug/rehype`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from every framework entry point.
+Types `Node`, `TextNode`, `GroupNode`, `WordhugHtmlOptions`, `WordhugRichTextOptions`, `WordhugRichTextGroupOption` and `WordhugRichTextGroup` are exported from `wordhug`, and `RehypeWordhugOptions` from `wordhug/rehype`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from every framework entry point.
 
 ## Development
 
@@ -308,6 +406,13 @@ Layout tests run in headless Chromium and check that groups really stay on one l
 ```bash
 npx playwright install chromium
 npm run test:browser
+```
+
+To time `wordhugRichText` on large inputs, build first:
+
+```bash
+npm run build
+npm run bench
 ```
 
 ## License

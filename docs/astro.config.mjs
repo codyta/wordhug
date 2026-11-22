@@ -37,7 +37,7 @@ export default defineConfig({
           label: "Frameworks",
           items: ["frameworks/react", "frameworks/vue", "frameworks/solid", "frameworks/svelte", "frameworks/astro"],
         },
-        { label: "Without a framework", items: ["guides/html", "guides/markdown", "guides/parser"] },
+        { label: "Without a framework", items: ["guides/html", "guides/rich-text", "guides/markdown", "guides/parser"] },
         typeDocSidebarGroup,
       ],
     }),
