@@ -9,8 +9,6 @@ Keep phrases together on one line. Put square brackets around a phrase and it is
 
 Useful for headings and short copy where a line break would split a name, a price, or a phrase that should read as one unit.
 
-**[Documentation](https://codyta.github.io/wordhug/)**: guides for every framework, live examples and the API reference.
-
 ## Why
 
 wordhug started with Vietnamese. Many Vietnamese words are compounds of several syllables written with spaces between them, like *ăn mặc* (to dress), *học sinh* (student) or *Hà Nội*. To a browser every syllable is a separate word, so a line can break in the middle of one, even in a nicely balanced heading:

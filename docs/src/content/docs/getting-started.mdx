@@ -17,13 +17,13 @@ wordhug has no runtime dependencies. Each framework is an optional peer dependen
 
 | Framework | Import from | Peer dependency | Text goes in |
 | --- | --- | --- | --- |
-| [React](/wordhug/frameworks/react/) | `wordhug/react` | `react` 18+ | `children` |
-| [Vue](/wordhug/frameworks/vue/) | `wordhug/vue` | `vue` 3.3+ | default slot |
-| [Solid](/wordhug/frameworks/solid/) | `wordhug/solid` | `solid-js` and `@solidjs/web` 2+ | `children` |
-| [Svelte](/wordhug/frameworks/svelte/) | `wordhug/svelte` | `svelte` 5+ | `text` prop |
-| [Astro](/wordhug/frameworks/astro/) | `wordhug/astro` | – | `text` prop |
-| [Markdown](/wordhug/guides/markdown/) | `wordhug/rehype` | – | markdown text |
-| [None](/wordhug/guides/html/) | `wordhug` | – | `wordhugHtml(text)` |
+| [React](/frameworks/react/) | `wordhug/react` | `react` 18+ | `children` |
+| [Vue](/frameworks/vue/) | `wordhug/vue` | `vue` 3.3+ | default slot |
+| [Solid](/frameworks/solid/) | `wordhug/solid` | `solid-js` and `@solidjs/web` 2+ | `children` |
+| [Svelte](/frameworks/svelte/) | `wordhug/svelte` | `svelte` 5+ | `text` prop |
+| [Astro](/frameworks/astro/) | `wordhug/astro` | – | `text` prop |
+| [Markdown](/guides/markdown/) | `wordhug/rehype` | – | markdown text |
+| [None](/guides/html/) | `wordhug` | – | `wordhugHtml(text)` |
 
 ## Wrap a phrase
 
@@ -96,10 +96,10 @@ Fresh bread <span style="display: inline-block">delivered daily</span> to <span 
   <p><WordHug text="Fresh bread [delivered daily] to [your door]" /></p>
 </Demo>
 
-No stylesheet is needed: the inline style is enough. To use a class instead, see [Styling](/wordhug/styling/).
+No stylesheet is needed: the inline style is enough. To use a class instead, see [Styling](/styling/).
 
 ## Next steps
 
-- [Parsing rules](/wordhug/parsing-rules/): nesting, unmatched brackets and how to write a literal bracket.
+- [Parsing rules](/parsing-rules/): nesting, unmatched brackets and how to write a literal bracket.
 - Your framework's page, for every prop and the `wordhug()` function.
-- [Markdown](/wordhug/guides/markdown/), if your text comes from markdown or MDX.
+- [Markdown](/guides/markdown/), if your text comes from markdown or MDX.

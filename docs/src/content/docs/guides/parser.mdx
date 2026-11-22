@@ -16,7 +16,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-It follows the [parsing rules](/wordhug/parsing-rules/): groups nest, unmatched brackets stay as text, whitespace is collapsed, and escapes are removed.
+It follows the [parsing rules](/parsing-rules/): groups nest, unmatched brackets stay as text, whitespace is collapsed, and escapes are removed.
 
 ## Types
 
@@ -51,4 +51,4 @@ const render = (nodes: Node[]): string =>
     .join("");
 ```
 
-For HTML, [`wordhugHtml`](/wordhug/guides/html/) already does this, with escaping.
+For HTML, [`wordhugHtml`](/guides/html/) already does this, with escaping.

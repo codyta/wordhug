@@ -13,8 +13,6 @@ import rehypeWordhug from "../src/rehype.ts";
 const src = (file) => fileURLToPath(new URL(`../src/${file}`, import.meta.url));
 
 export default defineConfig({
-  site: "https://codyta.github.io",
-  base: "/wordhug",
   // The docs' own prose uses wordhug: [brackets] in markdown become groups.
   markdown: { rehypePlugins: [rehypeWordhug] },
   integrations: [
