@@ -24,11 +24,25 @@ Requires Solid 2 (`solid-js` and `@solidjs/web`). The component needs no JSX com
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `children` | `string` | – | Text to render. Empty input renders nothing. |
+| `children` | `JSX.Element` | – | Text and elements to render. Empty input renders nothing. |
 | `text` | `string \| null` | – | Text to render instead of `children`. When it's given, even as `""`, `children` are ignored. |
 | `as` | tag name or component | `"span"` | Element that wraps each group. |
 | `class` | `string` | – | Class on each group wrapper. |
 | `style` | object, string or `null` | `{ display: "inline-block" }` | Inline style on each group wrapper. `null` removes it. |
+
+## Children
+
+Strings and numbers in the children are joined into one text, so signals work inside brackets:
+
+```tsx
+<WordHug>Hello [{name()}], you have [{count()} new messages]</WordHug>
+```
+
+Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
+
+```tsx
+<WordHug>Fresh bread for [only <strong>{price()}</strong> a loaf]</WordHug>
+```
 
 ## `wordhug()`
 

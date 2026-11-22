@@ -59,6 +59,33 @@ describe("Solid WordHug in the browser", () => {
     dispose();
   });
 
+  it("keeps elements in place, inside and outside groups, and doesn't read brackets in them", () => {
+    const [price, setPrice] = createSignal("$9");
+    const el = document.createElement("div");
+    const strong = () => {
+      const node = document.createElement("strong");
+      node.textContent = "[x]";
+      return node;
+    };
+    const dispose = render(
+      () =>
+        createComponent(WordHug, {
+          get children() {
+            const b = document.createElement("b");
+            b.textContent = price();
+            return ["Buy [only ", b, " today] ", strong()];
+          },
+        }),
+      el,
+    );
+    expect(el.innerHTML).toBe('Buy <span style="display: inline-block;">only <b>$9</b> today</span> <strong>[x]</strong>');
+
+    setPrice("$5");
+    flush();
+    expect(el.innerHTML).toBe('Buy <span style="display: inline-block;">only <b>$5</b> today</span> <strong>[x]</strong>');
+    dispose();
+  });
+
   it("wordhug re-renders when called inside a reactive expression", () => {
     const [text, setText] = createSignal("[a b] c");
     const el = document.createElement("div");
