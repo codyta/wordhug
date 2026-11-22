@@ -1,5 +1,14 @@
 import { groupTags, type WordhugHtmlOptions } from "./html";
+import { liftCrossingGroups, SPLITTABLE, type TreeOps } from "./overlap";
 import { parseParts, type MixedNode } from "./parse";
+
+export interface WordhugMarkupOptions extends WordhugHtmlOptions {
+  /**
+   * Called with a message when a group starts in one element and ends in
+   * another that can't be split, such as a link, so its brackets stay as text.
+   */
+  onWarning?: (message: string) => void;
+}
 
 /** Markup that is copied as it is: a tag, a comment, or a whole element whose content isn't read. */
 interface Raw {
@@ -8,6 +17,7 @@ interface Raw {
 
 /** An element whose content is read for brackets. `close` is empty if the markup never closes it. */
 interface Element {
+  name: string;
   open: string;
   children: Piece[];
   close: string;
@@ -41,11 +51,13 @@ const ESCAPED_BRACKET = /\\[[\]]/;
  * content of `<code>`, `<pre>`, `<script>`, `<style>` and similar elements are
  * kept exactly as they are. The input is not escaped, so it must be trusted.
  *
- * Brackets are read within the text of one element: a group can contain inline
- * elements such as `<strong>`, but can't start in one element and end in
- * another. Text in an element without groups is left exactly as it was.
+ * A group can contain inline elements such as `<strong>`. When a group starts
+ * in one element and ends in another, formatting elements such as `<strong>`
+ * and `<em>` are split at the bracket so the group fits; when a link or another
+ * element that can't be split is in the way, the brackets stay as text and
+ * `onWarning` is called. Text in an element without groups is left exactly as it was.
  */
-export function wordhugMarkup(html: string | null | undefined, options: WordhugHtmlOptions = {}): string {
+export function wordhugMarkup(html: string | null | undefined, options: WordhugMarkupOptions = {}): string {
   if (!html) return "";
   const { open, close } = groupTags(options);
 
@@ -74,13 +86,13 @@ export function wordhugMarkup(html: string | null | undefined, options: WordhugH
     return renderNodes(nodes);
   };
 
-  return renderPieces(parseMarkup(html));
+  return renderPieces(liftCrossingGroups(parseMarkup(html), MARKUP, options.onWarning));
 }
 
 /** Split HTML into text and items, nesting elements whose content is read. */
 function parseMarkup(html: string): Piece[] {
   const lower = html.toLowerCase();
-  const root: Element = { open: "", children: [], close: "" };
+  const root: Element = { name: "", open: "", children: [], close: "" };
   const stack: { name: string; element: Element }[] = [{ name: "", element: root }];
 
   const add = (piece: Piece): void => {
@@ -125,7 +137,7 @@ function parseMarkup(html: string): Piece[] {
       i = skipElement(html, lower, tag.end, tag.name);
       add({ raw: html.slice(lt, i) });
     } else {
-      const element: Element = { open: source, children: [], close: "" };
+      const element: Element = { name: tag.name, open: source, children: [], close: "" };
       add(element);
       stack.push({ name: tag.name, element });
     }
@@ -194,3 +206,19 @@ function skipElement(html: string, lower: string, from: number, name: string): n
   }
   return html.length;
 }
+
+const ID_ATTRIBUTE = /\sid\s*=/i;
+
+const MARKUP: TreeOps<Piece, Element> = {
+  text: (piece) => (typeof piece === "string" ? piece : undefined),
+  makeText: (value) => value,
+  element: (piece) => (typeof piece !== "string" && "children" in piece ? piece : undefined),
+  children: (element) => element.children,
+  setChildren: (element, children) => {
+    element.children = children;
+  },
+  clone: (element, children) => ({ ...element, children }),
+  // An element the markup never closes can't be split: its copy would swallow what follows.
+  splittable: (element) => SPLITTABLE.has(element.name) && element.close !== "" && !ID_ATTRIBUTE.test(element.open),
+  name: (element) => element.name,
+};

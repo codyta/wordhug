@@ -77,6 +77,39 @@ describe("rehypeWordhug", () => {
   it("rejects tag names that are not plain element names", () => {
     expect(() => rehypeWordhug({ as: "span onclick" })).toThrow(TypeError);
   });
+
+  describe("groups across formatting", () => {
+    it("splits bold and italic at the brackets so the group fits", () => {
+      expect(md("**a [b** c]")).toBe(`<p><strong>a </strong>${SPAN}<strong>b</strong> c</span></p>`);
+      expect(md("[a **b] c**")).toBe(`<p>${SPAN}a <strong>b</strong></span><strong> c</strong></p>`);
+    });
+
+    it("handles overlapping bold and italic", () => {
+      expect(md("**Overlapping *[text** style]*")).toBe(
+        `<p><em><em>Overlapping </em>${SPAN}<em><em>text</em></em> style</span></em></p>`,
+      );
+    });
+
+    it("keeps brackets as text and adds a warning to the file when a link is in the way", () => {
+      const tree = {
+        type: "root",
+        children: [
+          { type: "text", value: "[a " },
+          {
+            type: "element",
+            tagName: "a",
+            properties: { href: "u" },
+            children: [{ type: "text", value: "b] c" }],
+          },
+        ],
+      };
+      const messages: string[] = [];
+      rehypeWordhug()(tree, { message: (reason: string) => messages.push(reason) });
+      expect(tree.children.map((child) => ("value" in child ? child.value : child.tagName))).toEqual(["[a ", "a"]);
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toContain("<a> can't be split");
+    });
+  });
 });
 
 describe("rehypeWordhug whitespace", () => {

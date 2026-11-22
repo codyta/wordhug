@@ -26,7 +26,11 @@ const html =
   text != null
     ? wordhugHtml(text, options)
     : Astro.slots.has("default")
-      ? wordhugMarkup(await Astro.slots.render("default"), options)
+      ? wordhugMarkup(await Astro.slots.render("default"), {
+          ...options,
+          // A group that can't fit around a link or similar is worth knowing about while writing.
+          onWarning: import.meta.env.DEV ? (message) => console.warn(message) : undefined,
+        })
       : "";
 ---
 
