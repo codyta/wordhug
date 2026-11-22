@@ -1,6 +1,6 @@
 ---
 title: Svelte
-description: The WordHug component for Svelte 5.
+description: The WordHug component and wordhug() function for Svelte 5.
 ---
 
 import { WordHug } from "wordhug/svelte";
@@ -30,3 +30,15 @@ Requires Svelte 5. The component ships as source and is compiled by your build, 
 | `style` | `string \| null` | `"display: inline-block"` | Style attribute on each group wrapper. `null` removes it. |
 
 The text goes in the `text` prop rather than the children, because a Svelte 5 snippet can't be read as text.
+
+## `wordhug()`
+
+Returns the same output as an HTML string, with the text escaped, for `{@html}`. Options are `as`, `class` and `style`, as for the component:
+
+```svelte
+<script>
+  import { wordhug } from "wordhug/svelte";
+</script>
+
+<h1>{@html wordhug("Fresh bread [delivered daily]", { class: "nowrap" })}</h1>
+```

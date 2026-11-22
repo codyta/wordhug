@@ -1,6 +1,6 @@
 ---
 title: Astro
-description: The WordHug component for Astro, and wordhug in Astro's markdown.
+description: The WordHug component and wordhug() function for Astro, and wordhug in Astro's markdown.
 ---
 
 import WordHug from "wordhug/astro";
@@ -18,7 +18,7 @@ import WordHug from "wordhug/astro";
   <p><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></p>
 </Demo>
 
-The component renders static HTML with no client JavaScript.
+The component renders static HTML with no client JavaScript. It's the default export, and also exported by name: `import { WordHug } from "wordhug/astro"`.
 
 ## Props
 
@@ -41,6 +41,18 @@ Elements and `{expressions}` in the children stay where they are, and a group ca
 Astro hands children to a component as rendered HTML, so the component reads brackets in the text only, and brackets inside an element are read within that element. Code, `<pre>`, `<script>`, `<style>` and hydrated islands are left alone, so islands still hydrate.
 
 Use `text` when the text comes from a variable: `<WordHug text={post.title} />`.
+
+## `wordhug()`
+
+Returns the same output as an HTML string, with the text escaped, for `set:html`. It takes plain text, like the `text` prop. Options are `as`, `class` and `style`:
+
+```astro
+---
+import { wordhug } from "wordhug/astro";
+---
+
+<p set:html={wordhug("Fresh bread [delivered daily]", { class: "nowrap" })} />
+```
 
 ## Markdown and MDX
 
