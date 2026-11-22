@@ -183,7 +183,7 @@ import WordHug from "wordhug/astro";
 
 The text comes from the children, or from the `text` prop, which wins when both are given. Other props are the same as Svelte: `as`, `class`, `style`. Renders static HTML with no client JavaScript.
 
-Astro hands children to a component as rendered HTML, so they are read with [`wordhugMarkup`](#html-you-already-have-wordhugmarkup): elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. Brackets inside an element are read within that element only, and code, `<pre>` and hydrated islands are left alone.
+Astro hands children to a component as rendered HTML, so the component reads brackets in that HTML's text only: elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. Brackets inside an element are read within that element only, and code, `<pre>` and hydrated islands are left alone.
 
 ### Plain HTML: `wordhugHtml`
 
@@ -197,19 +197,6 @@ wordhugHtml("Fish & [chips]", { class: "nowrap" });
 Options are `as` (tag name), `class` and `style`, as for Svelte. Text and attributes are HTML-escaped, so the result is safe to insert with `innerHTML`.
 
 This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.
-
-### HTML you already have: `wordhugMarkup`
-
-The same for input that is already HTML, such as HTML from a CMS. Brackets are read in the text only; tags, attributes, comments and entities are kept as they are, so `&#91;` is another way to write a literal bracket. A group can contain inline elements, but can't start in one element and end in another, and text in elements without groups is left unchanged. `<code>`, `<pre>`, `<kbd>`, `<samp>`, `<script>`, `<style>`, `<textarea>`, `<title>`, `<svg>`, `<math>`, `<template>` and `<astro-island>` are left alone.
-
-```ts
-import { wordhugMarkup } from "wordhug";
-
-wordhugMarkup("<p>Buy [only <strong>$9</strong> today]</p>");
-// → '<p>Buy <span style="display: inline-block">only <strong>$9</strong> today</span></p>'
-```
-
-Options are the same as `wordhugHtml`. The input is not escaped or sanitized, so only pass HTML you trust.
 
 ### Markdown: `wordhug/rehype`
 

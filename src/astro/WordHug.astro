@@ -2,7 +2,9 @@
 // Renders `text`, or the children when there is no `text`, so that every
 // [bracketed phrase] is wrapped in an element (an inline-block span by default)
 // that moves to the next line as one unit.
-import { wordhugHtml, wordhugMarkup } from "wordhug";
+import { wordhugHtml } from "wordhug";
+// Not exported from the package: `#markup` is a private import (package.json `imports`).
+import { wordhugMarkup } from "#markup";
 
 export interface Props {
   /** Text to render. `[...]` groups are kept together on one line. Without it, the children are rendered. */

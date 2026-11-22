@@ -57,6 +57,8 @@ export default defineConfig({
         { find: /^wordhug\/svelte$/, replacement: src("svelte/index.js") },
         { find: /^wordhug\/astro$/, replacement: src("astro/WordHug.astro") },
         { find: /^wordhug\/rehype$/, replacement: src("rehype.ts") },
+        // The Astro component's private import of wordhugMarkup.
+        { find: /^#markup$/, replacement: src("markup.ts") },
       ],
     },
   },

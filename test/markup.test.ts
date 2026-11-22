@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { wordhugMarkup } from "../src/index";
+import { wordhugMarkup } from "../src/markup";
 
 const G = '<span style="display: inline-block">';
 

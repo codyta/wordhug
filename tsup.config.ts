@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts", "src/react.tsx", "src/vue.ts", "src/solid.ts", "src/rehype.ts"],
+  entry: ["src/index.ts", "src/react.tsx", "src/vue.ts", "src/solid.ts", "src/rehype.ts", "src/markup.ts"],
   format: ["esm", "cjs"],
   dts: true,
   clean: true,
