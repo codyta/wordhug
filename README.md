@@ -51,9 +51,9 @@ Each framework is an optional peer dependency; install only the one you use.
 
 | Framework | Import from      | Peer dependency               | Text goes in   |
 | --------- | ---------------- | ----------------------------- | -------------- |
-| React     | `wordhug/react`  | `react` 18+                   | `children`     |
-| Vue       | `wordhug/vue`    | `vue` 3.3+                    | default slot   |
-| Solid     | `wordhug/solid`  | `solid-js` and `@solidjs/web` 2+ | `children`  |
+| React     | `wordhug/react`  | `react` 18+                   | `children` or `text` prop |
+| Vue       | `wordhug/vue`    | `vue` 3.3+                    | default slot or `text` prop |
+| Solid     | `wordhug/solid`  | `solid-js` and `@solidjs/web` 2+ | `children` or `text` prop |
 | Svelte    | `wordhug/svelte` | `svelte` 5+                   | `text` prop    |
 | Astro     | `wordhug/astro`  | –                             | children or `text` prop |
 | None      | `wordhug`        | –                             | `wordhugHtml` |
@@ -91,6 +91,7 @@ export function Hero() {
 | Prop        | Type                          | Default                       | Description                          |
 | ----------- | ----------------------------- | ----------------------------- | ------------------------------------ |
 | `children`  | `React.ReactNode`             | –                             | Text and elements to render (see below). Empty input renders nothing. |
+| `text`      | `string \| null`              | –                             | Text to render instead of `children`. When it's given, even as `""`, `children` are ignored. |
 | `as`        | `React.ElementType`           | `"span"`                      | Element that wraps each group.       |
 | `className` | `string`                      | –                             | Class name on each group wrapper.    |
 | `style`     | `CSSProperties \| null`       | `{ display: "inline-block" }` | Inline style on each group wrapper. Pass `null` to style groups only through `className`. |
@@ -125,7 +126,7 @@ import { WordHug } from "wordhug/vue";
 </template>
 ```
 
-The text comes from the default slot: plain text and `{{ }}` interpolations are joined into one text, and elements and components stay where they are, each as one unit a group can contain. Brackets inside an element are not read. `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
+The text comes from the default slot, or from the `text` prop, which wins when given: plain text and `{{ }}` interpolations are joined into one text, and elements and components stay where they are, each as one unit a group can contain. Brackets inside an element are not read. `class` and `style` go on each group wrapper, not on a root element. `style` defaults to `display: inline-block`; `:style="null"` removes it. `as` takes a tag name or a component and defaults to `"span"`.
 
 `wordhug(text, options)` returns the same output as a VNode, for render functions, Vue JSX or anything that expects a VNode. Options are `as`, `class` and `style`, as for the component:
 
@@ -146,7 +147,7 @@ import { WordHug } from "wordhug/solid";
 </h1>;
 ```
 
-Props: `children` (string), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
+Props: `children` or `text` (string; `text` wins when given), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
 
 `wordhug(text, options)` returns the same output as a `JSX.Element`, for props that take an element or text built in a loop. It reads its arguments once, so call it inside JSX (`{wordhug(title())}`) or a memo to keep it reactive:
 

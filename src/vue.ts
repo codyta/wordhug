@@ -33,7 +33,7 @@ export interface WordHugOptions {
 const DEFAULT_STYLE: StyleValue = { display: "inline-block" };
 
 /**
- * Render the default slot so that every `[bracketed phrase]` is wrapped
+ * Render the default slot, or the `text` prop when given, so that every `[bracketed phrase]` is wrapped
  * in an element (an inline-block span by default) that moves to the next line
  * as one unit. `class` and `style` go on each group wrapper; `style` defaults
  * to `display: inline-block`, and `:style="null"` removes it.
@@ -42,12 +42,14 @@ export const WordHug = defineComponent({
   name: "WordHug",
   inheritAttrs: false,
   props: {
+    /** Text to render, as an alternative to the default slot. When given, the slot is ignored. */
+    text: { type: String as PropType<string | null>, default: undefined },
     /** Element or component used to wrap each group. Defaults to `"span"`. */
     as: { type: [String, Object, Function] as PropType<string | Component>, default: "span" },
   },
   setup(props, { slots, attrs }) {
     return () =>
-      render(slotParts(slots.default?.()), {
+      render(props.text != null ? [props.text] : slotParts(slots.default?.()), {
         as: props.as,
         class: attrs.class as WordHugOptions["class"],
         style: "style" in attrs ? (attrs.style as StyleValue | null) : undefined,

@@ -13,6 +13,16 @@ describe("Vue WordHug in the browser", () => {
     expect(el.innerHTML).toBe('d <span style="display: inline-block;">e</span>');
   });
 
+  it("updates when the text prop changes", async () => {
+    const text = ref<string | null>("[a b] c");
+    const el = document.createElement("div");
+    createApp({ render: () => h(WordHug, { text: text.value }, () => "[slot]") }).mount(el);
+    expect(el.innerHTML).toBe('<span style="display: inline-block;">a b</span> c');
+    text.value = null;
+    await nextTick();
+    expect(el.innerHTML).toBe('<span style="display: inline-block;">slot</span>');
+  });
+
   it("accepts a component as the wrapper and passes it class and style", () => {
     const Mark = defineComponent({
       setup: (_, { slots }) => () => h("mark", slots.default?.()),

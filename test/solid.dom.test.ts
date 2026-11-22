@@ -39,6 +39,26 @@ describe("Solid WordHug in the browser", () => {
     dispose();
   });
 
+  it("updates when the text prop changes", () => {
+    const [text, setText] = createSignal<string | null>("[a b] c");
+    const el = document.createElement("div");
+    const dispose = render(
+      () =>
+        createComponent(WordHug, {
+          get text() {
+            return text();
+          },
+          children: "[child]",
+        }),
+      el,
+    );
+    expect(el.innerHTML).toBe('<span style="display: inline-block;">a b</span> c');
+    setText(null);
+    flush();
+    expect(el.innerHTML).toBe('<span style="display: inline-block;">child</span>');
+    dispose();
+  });
+
   it("wordhug re-renders when called inside a reactive expression", () => {
     const [text, setText] = createSignal("[a b] c");
     const el = document.createElement("div");

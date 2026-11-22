@@ -12,6 +12,14 @@ describe("Solid WordHug", () => {
     );
   });
 
+  it("renders the text prop, which wins over children", () => {
+    const strip = (html: string) => html.replace(/ _hk=\S+/g, "");
+    expect(strip(ssr({ text: "Hello [big world]" }))).toBe('Hello <span style="display:inline-block">big world</span>');
+    expect(strip(ssr({ text: "[a]", children: "[b]" }))).toBe('<span style="display:inline-block">a</span>');
+    expect(ssr({ text: "", children: "[b]" })).toBe("");
+    expect(strip(ssr({ text: null, children: "[b]" }))).toBe('<span style="display:inline-block">b</span>');
+  });
+
   it("supports a custom element, class, null style and nesting", () => {
     const html = ssr({ children: "[a [b]]", as: "b", class: "nowrap", style: null });
     expect(html.replace(/ _hk=\S+/g, "")).toBe('<b class="nowrap">a <b class="nowrap">b</b></b>');

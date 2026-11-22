@@ -17,6 +17,19 @@ describe("WordHug", () => {
     );
   });
 
+  it("renders the text prop, which wins over children", () => {
+    const { container } = render(
+      <>
+        <WordHug text="Hello [big world]" />|<WordHug text="[a]">{"[b]"}</WordHug>|
+        <WordHug text="">{"[c]"}</WordHug>|<WordHug text={null}>{"[d]"}</WordHug>
+      </>,
+    );
+    expect(container.innerHTML).toBe(
+      'Hello <span style="display: inline-block;">big world</span>|<span style="display: inline-block;">a</span>||' +
+        '<span style="display: inline-block;">d</span>',
+    );
+  });
+
   it("drops the default style when style is null", () => {
     const { container } = render(
       <WordHug className="nowrap" style={null}>

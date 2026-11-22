@@ -21,7 +21,9 @@ export interface WordHugOptions {
 
 export interface WordHugProps extends WordHugOptions {
   /** Text to render. `[...]` groups are kept together on one line. */
-  children: string | null | undefined;
+  children?: string | null | undefined;
+  /** Text to render, as an alternative to children. When given, children are ignored. */
+  text?: string | null | undefined;
 }
 
 const DEFAULT_STYLE: JSX.CSSProperties = { display: "inline-block" };
@@ -33,7 +35,7 @@ const DEFAULT_STYLE: JSX.CSSProperties = { display: "inline-block" };
  */
 export function WordHug(props: WordHugProps): JSX.Element {
   return (() =>
-    wordhug(props.children, {
+    wordhug(props.text ?? props.children, {
       as: props.as,
       class: props.class,
       style: props.style,

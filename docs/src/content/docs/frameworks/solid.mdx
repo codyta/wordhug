@@ -25,6 +25,7 @@ Requires Solid 2 (`solid-js` and `@solidjs/web`). The component needs no JSX com
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `children` | `string` | – | Text to render. Empty input renders nothing. |
+| `text` | `string \| null` | – | Text to render instead of `children`. When it's given, even as `""`, `children` are ignored. |
 | `as` | tag name or component | `"span"` | Element that wraps each group. |
 | `class` | `string` | – | Class on each group wrapper. |
 | `style` | object, string or `null` | `{ display: "inline-block" }` | Inline style on each group wrapper. `null` removes it. |

@@ -27,6 +27,8 @@ export interface WordHugOptions {
 }
 
 export interface WordHugProps extends WordHugOptions {
+  /** Text to render, as an alternative to children. When given, children are ignored. */
+  text?: string | null;
   /**
    * Text to render. `[...]` groups are kept together on one line. Strings and
    * numbers are joined into one text, including inside arrays and fragments, so
@@ -43,8 +45,8 @@ const DEFAULT_STYLE: CSSProperties = { display: "inline-block" };
  * (an inline-block span by default) that moves to the next line as one unit.
  * Has no hooks or client-only code, so it works in React Server Components.
  */
-export function WordHug({ children, ...options }: WordHugProps): ReactNode {
-  return wordhug(children, options);
+export function WordHug({ text, children, ...options }: WordHugProps): ReactNode {
+  return wordhug(text ?? children, options);
 }
 
 /**

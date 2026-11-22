@@ -13,6 +13,15 @@ describe("Vue WordHug", () => {
     );
   });
 
+  it("renders the text prop, which wins over the slot", async () => {
+    expect(await ssr({ text: "Hello [big world]" }, "")).toBe(
+      '<!--[-->Hello <span style="display:inline-block;">big world</span><!--]-->',
+    );
+    expect(await ssr({ text: "[a]" }, "[b]")).toBe('<!--[--><span style="display:inline-block;">a</span><!--]-->');
+    expect(await ssr({ text: "" }, "[b]")).toBe("<!---->");
+    expect(await ssr({ text: null }, "[b]")).toBe('<!--[--><span style="display:inline-block;">b</span><!--]-->');
+  });
+
   it("puts class and style on each group, and drops the default style for null", async () => {
     expect(await ssr({ as: "b", class: "nowrap", style: null }, "[a [b]]")).toBe(
       '<!--[--><b class="nowrap">a <b class="nowrap">b</b></b><!--]-->',
