@@ -49,9 +49,13 @@ export function parseBrackets(input: string): Node[] {
  * elements. Strings are joined and parsed as one text; every other part is
  * kept whole as an `item` node at its place, so a group can contain it but
  * brackets inside it are not read. Whitespace is collapsed and trimmed within
- * text only, so the space between a word and an item is kept.
+ * text only, so the space between a word and an item is kept; with
+ * `keepWhitespace` it is left exactly as written.
  */
-export function parseParts<T>(parts: readonly (string | T)[]): MixedNode<T>[] {
+export function parseParts<T>(
+  parts: readonly (string | T)[],
+  { keepWhitespace = false }: { keepWhitespace?: boolean } = {},
+): MixedNode<T>[] {
   // Each item stands in the joined text as one placeholder character. Items are
   // found by position, not by that character, so text containing it is safe.
   let input = "";
@@ -74,7 +78,7 @@ export function parseParts<T>(parts: readonly (string | T)[]): MixedNode<T>[] {
     if (i === top.end) {
       pushText(top.nodes, input.slice(start, i));
       stack.pop();
-      stack[stack.length - 1]!.nodes.push({ type: "group", children: normalize(top.nodes) });
+      stack[stack.length - 1]!.nodes.push({ type: "group", children: normalize(top.nodes, keepWhitespace) });
       start = i + 1;
       continue;
     }
@@ -94,7 +98,7 @@ export function parseParts<T>(parts: readonly (string | T)[]): MixedNode<T>[] {
 
   const root = stack[0]!.nodes;
   pushText(root, input.slice(start));
-  return normalize(root);
+  return normalize(root, keepWhitespace);
 }
 
 const ESCAPED_BRACKET = /\\([[\]])/g;
@@ -105,20 +109,21 @@ function pushText<T>(nodes: MixedNode<T>[], value: string): void {
 
 /**
  * Map each matched `[` index to the index of its `]`. Unmatched and escaped
- * (`\[`, `\]`) brackets are left out.
+ * (`\[`, `\]`) brackets are left out, and so are the places in `skip`.
  */
-function matchBrackets(input: string): Map<number, number> {
+export function matchBrackets(input: string, skip?: ReadonlySet<number>): Map<number, number> {
   const pairs = new Map<number, number>();
   const open: number[] = [];
   for (let i = 0; i < input.length; i++) {
     if (input[i] === "\\" && (input[i + 1] === "[" || input[i + 1] === "]")) i++;
+    else if (skip?.has(i)) continue;
     else if (input[i] === "[") open.push(i);
     else if (input[i] === "]" && open.length > 0) pairs.set(open.pop()!, i);
   }
   return pairs;
 }
 
-function normalize<T>(nodes: MixedNode<T>[]): MixedNode<T>[] {
+function normalize<T>(nodes: MixedNode<T>[], keepWhitespace: boolean): MixedNode<T>[] {
   const out: MixedNode<T>[] = [];
   for (const node of nodes) {
     if (node.type === "group") {
@@ -134,6 +139,7 @@ function normalize<T>(nodes: MixedNode<T>[]): MixedNode<T>[] {
     else out.push({ type: "text", value: node.value });
   }
 
+  if (keepWhitespace) return out.filter((node) => node.type !== "text" || node.value !== "");
   for (const node of out) {
     if (node.type === "text") node.value = node.value.replace(WHITESPACE, " ");
   }

@@ -129,6 +129,7 @@
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run typecheck && npm test && npm run build",
     "changeset": "changeset",
+    "bench": "node scripts/bench-rich-text.mjs",
     "check:package": "node scripts/check-package.mjs && publint --strict && attw --pack . --exclude-entrypoints astro --ignore-rules cjs-resolves-to-esm",
     "test:browser": "vitest run -c vitest.browser.config.ts"
   },
