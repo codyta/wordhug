@@ -3,6 +3,7 @@
  *
  * @module wordhug/rehype
  */
+import { liftCrossingGroups, SPLITTABLE, type TreeOps } from "./overlap";
 import { parseParts, type MixedNode } from "./parse";
 
 export interface RehypeWordhugOptions {
@@ -24,6 +25,11 @@ export interface RehypeWordhugOptions {
 export interface HastNode {
   type: string;
   children?: HastNode[];
+}
+
+/** The part of a vfile the plugin uses to report warnings. */
+interface VFileLike {
+  message(reason: string): unknown;
 }
 
 interface HastText extends HastNode {
@@ -50,9 +56,12 @@ const ESCAPED_BRACKET = /\\[[\]]/;
  * one unit. Use it after `remark-rehype`, so markdown links and references are
  * already resolved and only leftover brackets are read.
  *
- * Brackets are read within the text of one element: a group can contain inline
- * elements such as `<em>`, but can't start in one element and end in another.
- * Code, `<pre>`, `<script>`, `<style>` and similar elements are left alone.
+ * A group can contain inline elements such as `<em>`. When a group starts in one
+ * element and ends in another, as in `**a [b** c]`, formatting elements such as
+ * `<strong>` and `<em>` are split at the bracket so the group fits; when a link or
+ * another element that can't be split is in the way, the brackets stay as text
+ * and a warning is added to the file. Code, `<pre>`, `<script>`, `<style>` and
+ * similar elements are left alone.
  */
 export default function rehypeWordhug(options: RehypeWordhugOptions = {}) {
   const { as = "span", class: className, style = "display: inline-block" } = options;
@@ -97,7 +106,26 @@ export default function rehypeWordhug(options: RehypeWordhugOptions = {}) {
     parent.children = toHast(nodes);
   };
 
-  return (tree: HastNode): void => visit(tree);
+  return (tree: HastNode, file?: VFileLike): void => {
+    if (tree.children) {
+      tree.children = liftCrossingGroups(tree.children, HAST, file && ((message) => void file.message(message)));
+    }
+    visit(tree);
+  };
 }
 
 export { rehypeWordhug };
+
+const HAST: TreeOps<HastNode, HastElement> = {
+  text: (node) => (node.type === "text" ? (node as HastText).value : undefined),
+  makeText: (value) => ({ type: "text", value }) as HastText,
+  element: (node) =>
+    node.type === "element" && !SKIP.has((node as HastElement).tagName) ? (node as HastElement) : undefined,
+  children: (element) => element.children,
+  setChildren: (element, children) => {
+    element.children = children;
+  },
+  clone: (element, children) => ({ ...element, properties: { ...element.properties }, children }),
+  splittable: (element) => SPLITTABLE.has(element.tagName) && element.properties.id == null,
+  name: (element) => element.tagName,
+};

@@ -55,7 +55,7 @@ The same as [`wordhugHtml`](/guides/html/): `as` (tag name), `class` and `style`
 The plugin runs after markdown is parsed, so markdown's own brackets are already handled and only the brackets left in the text become groups:
 
 - **Left alone:** links like `[text](url)`, references with a definition, footnotes and task list boxes.
-- **Formatting inside groups:** a group can contain `**bold**`, `*italic*` and other inline formatting, but can't start in one element and end in another.
+- **Formatting inside groups:** a group can contain `**bold**`, `*italic*` and other inline formatting, and can start in one and end in another, as in `**a [b** c]`: the formatting is split at the bracket. A group that would cut a link keeps its brackets as text and adds a warning to the file. See [Parsing rules](/parsing-rules/#groups-across-formatting).
 - **Code is never read:** code spans, code blocks, `<pre>`, `<script>` and `<style>`.
 - **Nothing else changes:** text without groups is left exactly as it was.
 

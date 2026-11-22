@@ -36,10 +36,19 @@ How many backslashes you type depends on where the text is written:
 
 ## Elements inside groups
 
-In React and Vue, the children can contain elements as well as text. Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
+In React, Vue and Solid, the children can contain elements as well as text. Elements stay where they are, and a group can contain them: each element is one unit that is never split. Brackets inside an element are not read, so a group can't start in one element and end in another.
 
 ```tsx
 <WordHug>Fresh bread for [only <strong>$3</strong> a loaf]</WordHug>
 ```
 
-The markdown plugin follows the same rule for inline formatting such as bold and italic.
+## Groups across formatting
+
+In [markdown](/guides/markdown/) and [Astro](/frameworks/astro/) children, a group can start in one formatting element and end in another, as in `**a [b** c]`. `<strong>`, `<em>`, `<b>`, `<i>`, `<u>`, `<s>`, `<del>`, `<ins>`, `<mark>`, `<small>`, `<sub>`, `<sup>` and `<span>` are split at the bracket, so the group fits and every piece keeps its formatting:
+
+```html
+<!-- **a [b** c] -->
+<strong>a </strong><span style="display: inline-block"><strong>b</strong> c</span>
+```
+
+A link, an element with an `id` or any other element can't be split. Then the brackets stay as text and a warning is reported: a vfile message from the markdown plugin, and a console warning in Astro development.

@@ -1,5 +1,5 @@
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import WordHug from "../src/astro/WordHug.astro";
 import Children from "./fixtures/Children.astro";
 import Default, { WordHug as Named, wordhug } from "../src/astro/index.js";
@@ -35,6 +35,16 @@ describe("Astro WordHug", () => {
     expect(html).toBe(
       'Buy <span class="nowrap" style="display: inline-block">only <strong>$9 &amp; up</strong> today</span>, see <code>[code]</code>',
     );
+  });
+
+  it("splits formatting around a group in the children, and warns in development when it can't", async () => {
+    expect(await render({}, { default: "<b>a [b</b> c]" })).toBe(
+      '<b>a </b><span style="display: inline-block"><b>b</b> c</span>',
+    );
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(await render({}, { default: '[a <a href="u">b] c</a>' })).toBe('[a <a href="u">b] c</a>');
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
   });
 
   it("prefers text over children", async () => {

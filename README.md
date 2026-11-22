@@ -200,7 +200,7 @@ import { WordHug, wordhug } from "wordhug/astro"; // or: import WordHug from "wo
 
 The text comes from the children, or from the `text` prop, which wins when both are given. Other props are the same as Svelte: `as`, `class`, `style`. Renders static HTML with no client JavaScript.
 
-Astro hands children to a component as rendered HTML, so the component reads brackets in that HTML's text only: elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. Brackets inside an element are read within that element only, and code, `<pre>` and hydrated islands are left alone.
+Astro hands children to a component as rendered HTML, so the component reads brackets in that HTML's text only: elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. A group can also start in one formatting element and end in another, as in `[only <strong>$9] today</strong>`: the element is split at the bracket (see [Parsing rules](#parsing-rules)). Code, `<pre>` and hydrated islands are left alone.
 
 `wordhug(text, options)` returns the same output as an HTML string, with the text escaped, for `set:html`. It takes plain text only, like the `text` prop. Options are `as`, `class` and `style`.
 
@@ -347,7 +347,7 @@ Astro 7's default markdown processor doesn't run rehype plugins, so also install
 
 Options are `as` (tag name), `class` and `style`, as for `wordhugHtml`.
 
-The plugin runs after markdown is parsed, so links (`[text](url)`), references with a definition, footnotes and task list boxes are already handled; only brackets left in the text become groups. A group can contain inline formatting such as `**bold**` or `*italic*`, but can't start in one element and end in another. Code spans, code blocks and `<pre>`, `<script>` and `<style>` are left alone, and text without groups is left exactly as it was.
+The plugin runs after markdown is parsed, so links (`[text](url)`), references with a definition, footnotes and task list boxes are already handled; only brackets left in the text become groups. A group can contain inline formatting such as `**bold**` or `*italic*`, and can start in one and end in another, as in `**a [b** c]`: the formatting is split at the bracket. A link can't be split, so a group that would cut one keeps its brackets as text and a warning is added to the file. Code spans, code blocks and `<pre>`, `<script>` and `<style>` are left alone, and text without groups is left exactly as it was.
 
 Markdown removes a backslash before a bracket, so for a literal bracket write two backslashes: `\\[sic\\]` renders `[sic]`.
 
@@ -364,6 +364,7 @@ An inline-block group moves to the next line as a whole. If a group is wider tha
 - Runs of whitespace collapse to a single space, and whitespace at the start and end of the text and of each group is removed. In markdown (`wordhug/rehype`), Astro children and rich text, where the text already sits in HTML or nodes, only a group's edges are trimmed and other whitespace is kept as written, so a space at the edge of `<em>` or `**…**` still separates it from the next word.
 - Text touching a bracket stays attached: `(see [page 3])` renders `(see <span>page 3</span>)`.
 - Empty groups (`[]`) are dropped.
+- In markdown (`wordhug/rehype`) and Astro children, a group can start in one formatting element and end in another, as in `**a [b** c]`: `<strong>`, `<em>`, `<b>`, `<i>`, `<u>`, `<s>`, `<del>`, `<ins>`, `<mark>`, `<small>`, `<sub>`, `<sup>` and `<span>` are split at the bracket, so the group fits and the text keeps its formatting. A link, an element with an `id` or any other element can't be split: then the brackets stay as text, with a warning (a vfile message from rehype, the console in Astro development). In React, Vue and Solid children an element is one unit, so a group has to contain the whole element.
 - To show a literal bracket, put a backslash before it: `\[sic\]` renders `[sic]` and never forms a group. A backslash before any other character is kept as is.
 
 In JSX text, Vue and Svelte templates and Astro attributes a backslash is literal, so `<WordHug>Quote \[sic\]</WordHug>` and `text="Quote \[sic\]"` work as written. Inside a JavaScript string the backslash itself needs escaping: `{"Quote \\[sic\\]"}`.

@@ -16,7 +16,7 @@ describe("wordhugMarkup", () => {
 
   it("reads brackets inside elements, within that element only", () => {
     expect(wordhugMarkup("<p>a [b c]</p><p>[d</p><p>e]</p>")).toBe(`<p>a ${G}b c</span></p><p>[d</p><p>e]</p>`);
-    expect(wordhugMarkup("[a <b>c] d</b>")).toBe("[a <b>c] d</b>");
+
   });
 
   it("never reads brackets in tags, attributes or comments", () => {
@@ -59,6 +59,46 @@ describe("wordhugMarkup", () => {
 
   it("renders nothing for empty input", () => {
     for (const html of [null, undefined, ""]) expect(wordhugMarkup(html)).toBe("");
+  });
+
+  describe("groups that start and end in different elements", () => {
+    it("splits formatting elements at the brackets so the group fits", () => {
+      expect(wordhugMarkup("[a <b>c] d</b>")).toBe(`${G}a <b>c</b></span><b> d</b>`);
+      expect(wordhugMarkup("<p><strong>a [b</strong> c]</p>")).toBe(
+        `<p><strong>a </strong>${G}<strong>b</strong> c</span></p>`,
+      );
+    });
+
+    it("copies the element's attributes into both halves", () => {
+      expect(wordhugMarkup('<span class="italic">a [b</span> c]')).toBe(
+        `<span class="italic">a </span>${G}<span class="italic">b</span> c</span>`,
+      );
+    });
+
+    it("splits nested formatting", () => {
+      expect(wordhugMarkup("<em><em>Overlapping <em>[text</em></em> style]</em>")).toBe(
+        `<em><em>Overlapping </em>${G}<em><em>text</em></em> style</span></em>`,
+      );
+    });
+
+    it("keeps brackets as text and warns when a link, an id or an unclosed element is in the way", () => {
+      const warnings: string[] = [];
+      const onWarning = (message: string) => warnings.push(message);
+      for (const html of ["[a <a href=u>b] c</a>", '[a <em id="x">b] c</em>', "[a <em>b] c"]) {
+        expect(wordhugMarkup(html, { onWarning })).toBe(html);
+      }
+      expect(warnings).toHaveLength(3);
+      expect(warnings[0]).toBe(
+        'wordhug: the group "[a b]" starts and ends in different elements, and <a> can\'t be split, ' +
+          "so its brackets are kept as text. Put both brackets inside <a> or both outside it.",
+      );
+    });
+
+    it("doesn't warn when nothing crosses", () => {
+      const warnings: string[] = [];
+      wordhugMarkup("<p>[a <b>b</b>]</p> <em>[c]</em>", { onWarning: (m) => warnings.push(m) });
+      expect(warnings).toEqual([]);
+    });
   });
 });
 
