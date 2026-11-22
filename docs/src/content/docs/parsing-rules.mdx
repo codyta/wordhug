@@ -20,6 +20,8 @@ In the table, `<span>` stands for the full wrapper, `<span style="display: inlin
 
 Runs of whitespace collapse to a single space, and whitespace at the start and end of the text and of each group is removed: `[  big   world ]` becomes a group containing `big world`.
 
+In [markdown](/guides/markdown/), [Astro](/frameworks/astro/) children and [rich text](/guides/rich-text/), where the text already sits in HTML or nodes, only a group's edges are trimmed. Other whitespace is kept as written, so a space at the edge of `<em>` or `**…**` still separates it from the next word.
+
 ## Literal brackets
 
 To show a bracket instead of starting a group, put a backslash before it. The backslash is removed. A backslash before any other character is kept as it is.

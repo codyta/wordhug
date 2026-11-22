@@ -361,7 +361,7 @@ An inline-block group moves to the next line as a whole. If a group is wider tha
 
 - `[...]` marks a group. Groups can nest: `[a [b c] d]`.
 - A bracket without a partner is kept as literal text: `a ] b` and `a [ b` render unchanged.
-- Runs of whitespace collapse to a single space, and whitespace at the start and end of the text and of each group is removed.
+- Runs of whitespace collapse to a single space, and whitespace at the start and end of the text and of each group is removed. In markdown (`wordhug/rehype`), Astro children and rich text, where the text already sits in HTML or nodes, only a group's edges are trimmed and other whitespace is kept as written, so a space at the edge of `<em>` or `**…**` still separates it from the next word.
 - Text touching a bracket stays attached: `(see [page 3])` renders `(see <span>page 3</span>)`.
 - Empty groups (`[]`) are dropped.
 - To show a literal bracket, put a backslash before it: `\[sic\]` renders `[sic]` and never forms a group. A backslash before any other character is kept as is.

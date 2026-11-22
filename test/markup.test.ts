@@ -61,3 +61,13 @@ describe("wordhugMarkup", () => {
     for (const html of [null, undefined, ""]) expect(wordhugMarkup(html)).toBe("");
   });
 });
+
+describe("wordhugMarkup whitespace", () => {
+  it("keeps the spaces at the edges of an inline element", () => {
+    expect(wordhugMarkup("Read<em> [the guide] </em>now")).toBe(`Read<em> ${G}the guide</span> </em>now`);
+  });
+
+  it("leaves whitespace around groups as written and trims only group edges", () => {
+    expect(wordhugMarkup("<p>  line one\n   [ a  b ]  </p>")).toBe(`<p>  line one\n   ${G}a  b</span>  </p>`);
+  });
+});

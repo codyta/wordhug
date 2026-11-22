@@ -66,7 +66,9 @@ export function wordhugMarkup(html: string | null | undefined, options: WordhugH
     const texts = pieces.filter((piece): piece is string => typeof piece === "string");
     if (!texts.some((text) => text.includes("[") || text.includes("]"))) return unchanged();
 
-    const nodes = parseParts<Item>(pieces);
+    // Whitespace is kept as written: this may be the inside of an inline element,
+    // whose edge spaces separate it from the words around it.
+    const nodes = parseParts<Item>(pieces, { keepWhitespace: true });
     const hasEscape = texts.some((text) => ESCAPED_BRACKET.test(text));
     if (!hasEscape && !nodes.some((node) => node.type === "group")) return unchanged();
     return renderNodes(nodes);

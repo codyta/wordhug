@@ -50,7 +50,7 @@ export function parseBrackets(input: string): Node[] {
  * kept whole as an `item` node at its place, so a group can contain it but
  * brackets inside it are not read. Whitespace is collapsed and trimmed within
  * text only, so the space between a word and an item is kept; with
- * `keepWhitespace` it is left exactly as written.
+ * `keepWhitespace` it is left exactly as written, except at a group's edges.
  */
 export function parseParts<T>(
   parts: readonly (string | T)[],
@@ -78,7 +78,7 @@ export function parseParts<T>(
     if (i === top.end) {
       pushText(top.nodes, input.slice(start, i));
       stack.pop();
-      stack[stack.length - 1]!.nodes.push({ type: "group", children: normalize(top.nodes, keepWhitespace) });
+      stack[stack.length - 1]!.nodes.push({ type: "group", children: normalize(top.nodes, keepWhitespace, true) });
       start = i + 1;
       continue;
     }
@@ -123,7 +123,7 @@ export function matchBrackets(input: string, skip?: ReadonlySet<number>): Map<nu
   return pairs;
 }
 
-function normalize<T>(nodes: MixedNode<T>[], keepWhitespace: boolean): MixedNode<T>[] {
+function normalize<T>(nodes: MixedNode<T>[], keepWhitespace: boolean, inGroup = false): MixedNode<T>[] {
   const out: MixedNode<T>[] = [];
   for (const node of nodes) {
     if (node.type === "group") {
@@ -139,10 +139,13 @@ function normalize<T>(nodes: MixedNode<T>[], keepWhitespace: boolean): MixedNode
     else out.push({ type: "text", value: node.value });
   }
 
-  if (keepWhitespace) return out.filter((node) => node.type !== "text" || node.value !== "");
-  for (const node of out) {
-    if (node.type === "text") node.value = node.value.replace(WHITESPACE, " ");
+  if (!keepWhitespace) {
+    for (const node of out) {
+      if (node.type === "text") node.value = node.value.replace(WHITESPACE, " ");
+    }
   }
+  // With `keepWhitespace`, only a group's edges are trimmed, never the text around groups.
+  if (keepWhitespace && !inGroup) return out.filter((node) => node.type !== "text" || node.value !== "");
   const first = out[0];
   if (first?.type === "text") first.value = first.value.trimStart();
   const last = out[out.length - 1];

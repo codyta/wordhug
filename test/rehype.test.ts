@@ -78,3 +78,26 @@ describe("rehypeWordhug", () => {
     expect(() => rehypeWordhug({ as: "span onclick" })).toThrow(TypeError);
   });
 });
+
+describe("rehypeWordhug whitespace", () => {
+  it("keeps the spaces at the edges of an inline element", () => {
+    const tree = {
+      type: "root",
+      children: [
+        {
+          type: "element",
+          tagName: "p",
+          properties: {},
+          children: [
+            { type: "text", value: "Read" },
+            { type: "element", tagName: "em", properties: {}, children: [{ type: "text", value: " [the guide] " }] },
+            { type: "text", value: "now" },
+          ],
+        },
+      ],
+    };
+    rehypeWordhug()(tree);
+    const em = tree.children[0]!.children[1] as { children: { type: string; value?: string }[] };
+    expect(em.children.map((child) => child.value ?? child.type)).toEqual([" ", "element", " "]);
+  });
+});
