@@ -88,7 +88,9 @@ export default function rehypeWordhug(options: RehypeWordhugOptions = {}) {
     if (!texts.some((text) => text.value.includes("[") || text.value.includes("]"))) return;
 
     const parts = children.map((child) => (child.type === "text" ? (child as HastText).value : child));
-    const nodes = parseParts<HastNode>(parts);
+    // Whitespace is kept as written: this may be the inside of an inline element,
+    // whose edge spaces separate it from the words around it.
+    const nodes = parseParts<HastNode>(parts, { keepWhitespace: true });
     const hasEscape = texts.some((text) => ESCAPED_BRACKET.test(text.value));
     if (!hasEscape && !nodes.some((node) => node.type === "group")) return;
 
