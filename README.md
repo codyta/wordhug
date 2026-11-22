@@ -147,7 +147,13 @@ import { WordHug } from "wordhug/solid";
 </h1>;
 ```
 
-Props: `children` or `text` (string; `text` wins when given), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
+Props: `children` or `text` (`text` wins when given), `as` (tag or component, default `"span"`), `class`, and `style` (object or string, default `{ display: "inline-block" }`, `null` removes it). Re-renders when any prop changes. Requires Solid 2.
+
+Strings and numbers in the children are joined into one text, so `Hello [{name()}]` works. Elements stay where they are, and a group can contain them: each element is one unit that is never split, and brackets inside it are not read.
+
+```tsx
+<WordHug>Fresh bread for [only <strong>{price()}</strong> a loaf]</WordHug>
+```
 
 `wordhug(text, options)` returns the same output as a `JSX.Element`, for props that take an element or text built in a loop. It reads its arguments once, so call it inside JSX (`{wordhug(title())}`) or a memo to keep it reactive:
 

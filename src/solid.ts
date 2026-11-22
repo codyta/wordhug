@@ -3,9 +3,9 @@
  *
  * @module wordhug/solid
  */
-import { createComponent } from "solid-js";
+import { children, createComponent, type ResolvedElement } from "solid-js";
 import { Dynamic, type JSX, type ValidComponent } from "@solidjs/web";
-import { parseBrackets, type Node } from "./parse";
+import { parseParts, type MixedNode } from "./parse";
 
 export interface WordHugOptions {
   /** Element or component used to wrap each group. Defaults to `"span"`. */
@@ -20,8 +20,13 @@ export interface WordHugOptions {
 }
 
 export interface WordHugProps extends WordHugOptions {
-  /** Text to render. `[...]` groups are kept together on one line. */
-  children?: string | null | undefined;
+  /**
+   * Text to render. `[...]` groups are kept together on one line. Strings and
+   * numbers are joined into one text, so `Hello [{name()}]` works. Elements
+   * are kept as they are, each as one unit that a group can contain; brackets
+   * inside an element are not read.
+   */
+  children?: JSX.Element;
   /** Text to render, as an alternative to children. When given, children are ignored. */
   text?: string | null | undefined;
 }
@@ -34,8 +39,10 @@ const DEFAULT_STYLE: JSX.CSSProperties = { display: "inline-block" };
  * Re-renders when any prop changes.
  */
 export function WordHug(props: WordHugProps): JSX.Element {
+  // Resolve once, so elements are created once and moved into place rather than rebuilt.
+  const resolved = children(() => props.children);
   return (() =>
-    wordhug(props.text ?? props.children, {
+    render(props.text != null ? [props.text] : childrenParts(resolved.toArray()), {
       as: props.as,
       class: props.class,
       style: props.style,
@@ -49,26 +56,45 @@ export function WordHug(props: WordHugProps): JSX.Element {
  * (`{wordhug(title())}`) or a memo to re-render when they change.
  * Returns `null` for empty text.
  */
-export function wordhug(
-  text: string | null | undefined,
+export function wordhug(text: string | null | undefined, options?: WordHugOptions): JSX.Element {
+  return text ? render([text], options) : null;
+}
+
+function render(
+  parts: (string | ResolvedElement)[],
   { as = "span", class: className, style }: WordHugOptions = {},
 ): JSX.Element {
-  if (!text) return null;
   const groupStyle = style === undefined ? DEFAULT_STYLE : (style ?? undefined);
 
-  const render = (nodes: Node[]): JSX.Element[] =>
-    nodes.map((node) =>
-      node.type === "text"
-        ? node.value
-        : createComponent(Dynamic as (props: Record<string, unknown>) => JSX.Element, {
-            component: as,
-            class: className,
-            style: groupStyle,
-            get children() {
-              return render(node.children);
-            },
-          }),
-    );
+  const renderNodes = (nodes: MixedNode<ResolvedElement>[]): JSX.Element[] =>
+    nodes.map((node) => {
+      if (node.type === "text") return node.value;
+      if (node.type === "item") return node.value as JSX.Element;
+      return createComponent(Dynamic as (props: Record<string, unknown>) => JSX.Element, {
+        component: as,
+        class: className,
+        style: groupStyle,
+        get children() {
+          return renderNodes(node.children);
+        },
+      });
+    });
 
-  return render(parseBrackets(text)) as unknown as JSX.Element;
+  const nodes = parseParts(parts);
+  return nodes.length > 0 ? (renderNodes(nodes) as unknown as JSX.Element) : null;
+}
+
+/**
+ * Turn resolved children into strings and other nodes. Numbers become strings;
+ * booleans, `null` and `undefined` are dropped; elements are kept as they are.
+ */
+function childrenParts(resolved: ResolvedElement[]): (string | ResolvedElement)[] {
+  const out: (string | ResolvedElement)[] = [];
+  for (const child of resolved) {
+    if (child == null || typeof child === "boolean") continue;
+    if (typeof child === "string") out.push(child);
+    else if (typeof child === "number" || typeof child === "bigint") out.push(String(child));
+    else out.push(child);
+  }
+  return out;
 }

@@ -20,6 +20,11 @@ describe("Solid WordHug", () => {
     expect(strip(ssr({ text: null, children: "[b]" }))).toBe('<span style="display:inline-block">b</span>');
   });
 
+  it("joins strings and numbers in children into one text", () => {
+    const html = ssr({ children: ["Hello [", "big ", 2, "] ", null, false, "world"] as never });
+    expect(html.replace(/ _hk=\S+/g, "")).toBe('Hello <span style="display:inline-block">big 2</span> world');
+  });
+
   it("supports a custom element, class, null style and nesting", () => {
     const html = ssr({ children: "[a [b]]", as: "b", class: "nowrap", style: null });
     expect(html.replace(/ _hk=\S+/g, "")).toBe('<b class="nowrap">a <b class="nowrap">b</b></b>');
