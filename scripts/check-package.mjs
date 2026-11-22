@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url);
 const pkg = require("../package.json");
 
 const expected = {
-  ".": ["parseBrackets", "wordhugHtml", "wordhugMarkup", "renderToHtml"],
+  ".": ["parseBrackets", "wordhugHtml", "renderToHtml"],
   "./react": ["WordHug", "wordhug"],
   "./vue": ["WordHug", "wordhug"],
   "./solid": ["WordHug", "wordhug"],
@@ -37,6 +37,11 @@ for (const [subpath, target] of Object.entries(pkg.exports)) {
     if (cjs[name] == null) fail(`${specifier}: require is missing ${name}`);
   }
 }
+
+// Internal, used only by the Astro component through the private `#markup` import.
+const root = await import(pkg.name);
+if ("wordhugMarkup" in root) fail(`${pkg.name}: wordhugMarkup should not be exported`);
+await access(new URL(`../${pkg.imports["#markup"]}`, import.meta.url)).catch(() => fail("missing the #markup file"));
 
 for (const subpath of Object.keys(expected)) {
   if (!(subpath in pkg.exports)) fail(`package.json exports has no ${subpath}`);

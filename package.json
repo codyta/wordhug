@@ -39,6 +39,9 @@
       ]
     }
   },
+  "imports": {
+    "#markup": "./dist/markup.js"
+  },
   "exports": {
     ".": {
       "import": {

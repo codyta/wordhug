@@ -24,26 +24,6 @@ Text and attributes are HTML-escaped, so the result is safe to insert with `inne
 
 Empty input (`""`, `null` or `undefined`) returns `""`.
 
-## HTML you already have: `wordhugMarkup`
-
-`wordhugMarkup` does the same for input that is already HTML, such as HTML from a CMS. It's what the [Astro component](/wordhug/frameworks/astro/) uses for its children.
-
-```ts
-import { wordhugMarkup } from "wordhug";
-
-wordhugMarkup("<p>Buy [only <strong>$9</strong> today]</p>");
-// → '<p>Buy <span style="display: inline-block">only <strong>$9</strong> today</span></p>'
-```
-
-- Brackets are read in the text only. Tags, attributes, comments and entities are kept as they are, so `&#91;` is another way to write a literal bracket.
-- A group can contain inline elements, but can't start in one element and end in another. Text in elements without groups is left unchanged.
-- `<code>`, `<pre>`, `<kbd>`, `<samp>`, `<script>`, `<style>`, `<textarea>`, `<title>`, `<svg>`, `<math>`, `<template>` and `<astro-island>` are left alone.
-- The options are the same as `wordhugHtml`.
-
-:::caution
-`wordhugMarkup` doesn't escape or sanitize its input, so only pass HTML you trust. For plain text, use `wordhugHtml`, which escapes.
-:::
-
 ## `renderToHtml`
 
 This was called `renderToHtml` before 0.3. The old name still works but is deprecated and will be removed in a future release.

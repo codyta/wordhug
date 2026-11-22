@@ -38,7 +38,7 @@ Elements and `{expressions}` in the children stay where they are, and a group ca
 <p><WordHug class="nowrap">Buy [only <strong>{price}</strong> today]</WordHug></p>
 ```
 
-Astro hands children to a component as rendered HTML, so they are read with [`wordhugMarkup`](/wordhug/guides/html/#html-you-already-have-wordhugmarkup): brackets are read in the text only, and brackets inside an element are read within that element. Code, `<pre>`, `<script>`, `<style>` and hydrated islands are left alone, so islands still hydrate.
+Astro hands children to a component as rendered HTML, so the component reads brackets in the text only, and brackets inside an element are read within that element. Code, `<pre>`, `<script>`, `<style>` and hydrated islands are left alone, so islands still hydrate.
 
 Use `text` when the text comes from a variable: `<WordHug text={post.title} />`.
 
