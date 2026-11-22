@@ -12,6 +12,7 @@ const expected = {
   "./vue": ["WordHug", "wordhug"],
   "./solid": ["WordHug", "wordhug"],
   "./rehype": ["default", "rehypeWordhug"],
+  // Svelte and Astro ship as source and need their compilers, so only their files are checked.
 };
 
 let failed = false;

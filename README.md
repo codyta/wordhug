@@ -175,20 +175,33 @@ import { wordhug } from "wordhug/solid";
 
 Props: `text` (string), `as` (tag name, default `"span"`), `class`, and `style` (string, default `"display: inline-block"`, `null` removes it). Requires Svelte 5; the component ships as source and is compiled by your build.
 
+`wordhug(text, options)` returns the same output as an HTML string, with the text escaped, for `{@html}`. Options are `as`, `class` and `style`, as for the component:
+
+```svelte
+<script>
+  import { wordhug } from "wordhug/svelte";
+</script>
+
+<h1>{@html wordhug("Fresh bread [delivered daily]", { class: "nowrap" })}</h1>
+```
+
 ### Astro
 
 ```astro
 ---
-import WordHug from "wordhug/astro";
+import { WordHug, wordhug } from "wordhug/astro"; // or: import WordHug from "wordhug/astro"
 ---
 
 <h1><WordHug>Fresh bread [delivered daily] to [your door]</WordHug></h1>
 <h2><WordHug text={title} /></h2>
+<p set:html={wordhug("Fresh bread [delivered daily]", { class: "nowrap" })} />
 ```
 
 The text comes from the children, or from the `text` prop, which wins when both are given. Other props are the same as Svelte: `as`, `class`, `style`. Renders static HTML with no client JavaScript.
 
 Astro hands children to a component as rendered HTML, so the component reads brackets in that HTML's text only: elements and `{expressions}` stay where they are, and a group can contain them, as in `[only <strong>{price}</strong>]`. Brackets inside an element are read within that element only, and code, `<pre>` and hydrated islands are left alone.
+
+`wordhug(text, options)` returns the same output as an HTML string, with the text escaped, for `set:html`. It takes plain text only, like the `text` prop. Options are `as`, `class` and `style`.
 
 ### Plain HTML: `wordhugHtml`
 
@@ -272,7 +285,7 @@ parseBrackets("Hello [big world] today");
 // ]
 ```
 
-Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`, and `RehypeWordhugOptions` from `wordhug/rehype`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from `wordhug/react`, `wordhug/vue` and `wordhug/solid`.
+Types `Node`, `TextNode`, `GroupNode` and `WordhugHtmlOptions` are exported from `wordhug`, and `RehypeWordhugOptions` from `wordhug/rehype`; `WordHugProps` is exported from `wordhug/react`, `wordhug/solid` and `wordhug/svelte`, and `WordHugOptions` from every framework entry point.
 
 ## Development
 

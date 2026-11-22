@@ -36,6 +36,9 @@
       ],
       "rehype": [
         "./dist/rehype.d.ts"
+      ],
+      "astro": [
+        "./dist/astro/index.d.ts"
       ]
     }
   },
@@ -98,7 +101,10 @@
         "default": "./dist/rehype.cjs"
       }
     },
-    "./astro": "./dist/astro/WordHug.astro",
+    "./astro": {
+      "types": "./dist/astro/index.d.ts",
+      "default": "./dist/astro/index.js"
+    },
     "./package.json": "./package.json"
   },
   "keywords": [

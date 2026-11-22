@@ -2,6 +2,7 @@ import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { describe, expect, it } from "vitest";
 import WordHug from "../src/astro/WordHug.astro";
 import Children from "./fixtures/Children.astro";
+import Default, { WordHug as Named, wordhug } from "../src/astro/index.js";
 
 const render = async (props: Record<string, unknown>, slots?: Record<string, string>) =>
   (await AstroContainer.create()).renderToString(WordHug, { props, slots });
@@ -38,5 +39,17 @@ describe("Astro WordHug", () => {
 
   it("prefers text over children", async () => {
     expect(await render({ text: "[a]" }, { default: "[b]" })).toBe('<span style="display: inline-block">a</span>');
+  });
+});
+
+describe("wordhug/astro entry", () => {
+  it("exports the component as default and as WordHug", () => {
+    expect(Default).toBe(WordHug);
+    expect(Named).toBe(WordHug);
+  });
+
+  it("exports wordhug, which returns an escaped HTML string like the component", async () => {
+    expect(wordhug("Fish & [chips <now>]")).toBe(await render({ text: "Fish & [chips <now>]" }));
+    expect(wordhug(null)).toBe("");
   });
 });
